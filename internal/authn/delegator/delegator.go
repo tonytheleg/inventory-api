@@ -2,6 +2,7 @@ package delegator
 
 import (
 	"context"
+	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/go-kratos/kratos/v2/transport"
 
@@ -20,9 +21,9 @@ func (d *DelegatingAuthenticator) Add(a api.Authenticator) {
 	d.Authenticators = append(d.Authenticators, a)
 }
 
-func (d *DelegatingAuthenticator) Authenticate(ctx context.Context, t transport.Transporter) (*api.Identity, api.Decision) {
+func (d *DelegatingAuthenticator) Authenticate(ctx context.Context, t transport.Transporter, logger log.Logger) (*api.Identity, api.Decision) {
 	for _, a := range d.Authenticators {
-		identity, decision := a.Authenticate(ctx, t)
+		identity, decision := a.Authenticate(ctx, t, logger)
 		if decision == api.Ignore {
 			continue
 		}

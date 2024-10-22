@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/middleware"
@@ -18,11 +19,11 @@ var (
 	ErrWrongContext = errors.Unauthorized(reason, "Wrong context for middleware")
 )
 
-func Authentication(authenticator authnapi.Authenticator) func(middleware.Handler) middleware.Handler {
+func Authentication(authenticator authnapi.Authenticator, logger log.Logger) func(middleware.Handler) middleware.Handler {
 	return func(next middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req any) (any, error) {
 			if t, ok := transport.FromServerContext(ctx); ok {
-				identity, decision := authenticator.Authenticate(ctx, t)
+				identity, decision := authenticator.Authenticate(ctx, t, logger)
 				if decision != authnapi.Allow {
 					return nil, errors.Unauthorized(reason, "Unauthorized")
 				}

@@ -2,6 +2,7 @@ package guest
 
 import (
 	"context"
+	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/go-kratos/kratos/v2/transport"
 
@@ -14,7 +15,7 @@ func New() *GuestAuthenticator {
 	return &GuestAuthenticator{}
 }
 
-func (a *GuestAuthenticator) Authenticate(ctx context.Context, t transport.Transporter) (*api.Identity, api.Decision) {
+func (a *GuestAuthenticator) Authenticate(ctx context.Context, t transport.Transporter, logger log.Logger) (*api.Identity, api.Decision) {
 
 	// TODO: should we use something else? ip address?
 	ua := t.RequestHeader().Get("User-Agent")

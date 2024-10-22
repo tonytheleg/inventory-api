@@ -4,6 +4,7 @@ package oidc
 import (
 	"context"
 	"fmt"
+	"github.com/go-kratos/kratos/v2/log"
 	"regexp"
 	"strings"
 
@@ -43,7 +44,7 @@ func New(c CompletedConfig) (*OAuth2Authenticator, error) {
 
 }
 
-func (o *OAuth2Authenticator) Authenticate(ctx context.Context, t transport.Transporter) (*api.Identity, api.Decision) {
+func (o *OAuth2Authenticator) Authenticate(ctx context.Context, t transport.Transporter, logger log.Logger) (*api.Identity, api.Decision) {
 	// get the token from the request
 	rawToken := util.GetBearerToken(t)
 
@@ -55,6 +56,7 @@ func (o *OAuth2Authenticator) Authenticate(ctx context.Context, t transport.Tran
 	// verify and parse it
 	tok, err := o.Verify(rawToken)
 	if err != nil {
+		logger.Log(log.LevelError, "msg", "oidc authentication verification failed", "error", err)
 		return nil, api.Deny
 	}
 
@@ -63,11 +65,13 @@ func (o *OAuth2Authenticator) Authenticate(ctx context.Context, t transport.Tran
 	u := &Claims{}
 	err = tok.Claims(u)
 	if err != nil {
+		logger.Log(log.LevelError, "msg", "oidc authentication get claims failed", "error", err)
 		return nil, api.Deny
 	}
 
 	if o.EnforceAudCheck {
 		if u.Audience != o.CompletedConfig.ClientId {
+			logger.Log(log.LevelError, "msg", "invalid audience", "audience", u.Audience)
 			return nil, api.Deny
 		}
 	}

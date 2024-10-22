@@ -3,6 +3,7 @@ package clientcert
 import (
 	"context"
 	"crypto/x509"
+	"github.com/go-kratos/kratos/v2/log"
 
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/peer"
@@ -19,7 +20,7 @@ func New() *ClientCertAuthenticator {
 	return &ClientCertAuthenticator{}
 }
 
-func (a *ClientCertAuthenticator) Authenticate(ctx context.Context, t transport.Transporter) (*api.Identity, api.Decision) {
+func (a *ClientCertAuthenticator) Authenticate(ctx context.Context, t transport.Transporter, logger log.Logger) (*api.Identity, api.Decision) {
 	var cert *x509.Certificate
 
 	switch t := t.(type) {
