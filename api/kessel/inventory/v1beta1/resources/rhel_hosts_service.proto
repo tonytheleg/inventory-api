@@ -4,6 +4,7 @@ package kessel.inventory.v1beta1.resources;
 
 import "google/api/annotations.proto";
 import "buf/validate/validate.proto";
+import "google/protobuf/field_mask.proto";
 
 import "kessel/inventory/v1beta1/resources/rhel_host.proto";
 import "kessel/inventory/v1beta1/resources/reporter_data.proto";
@@ -28,6 +29,17 @@ message UpdateRhelHostRequest {
 
 message UpdateRhelHostResponse {}
 
+message PatchRhelHostRequest {
+
+  RhelHost rhel_host = 1 [ json_name = "rhel_host", (buf.validate.field).required = true ];
+
+  // list of paths that can be patched.
+  // Current supported values: rhel_host.metadata.workspace_id, rhel_host.reporter_data.api_href, rhel_host.reporter_data.console_href
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message PatchRhelHostResponse {}
+
 message DeleteRhelHostRequest {
   // The resource to be updated will be defined by 
   // \"<reporter_data.reporter_type>:<reporter_instaance_id>:<reporter_data.local_resource_id>\"
@@ -48,6 +60,13 @@ service KesselRhelHostService {
   rpc UpdateRhelHost(UpdateRhelHostRequest) returns (UpdateRhelHostResponse) {
     option (google.api.http) = {
       put : "/api/inventory/v1beta1/resources/rhel-hosts"
+      body : "*"
+    };
+  };
+
+  rpc PatchRhelHost(PatchRhelHostRequest) returns (PatchRhelHostResponse) {
+    option (google.api.http) = {
+      patch : "/api/inventory/v1beta1/resources/rhel-hosts"
       body : "*"
     };
   };

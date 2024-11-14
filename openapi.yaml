@@ -392,6 +392,29 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/google.rpc.Status'
+        patch:
+            tags:
+                - KesselRhelHostService
+            operationId: KesselRhelHostService_PatchRhelHost
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/kessel.inventory.v1beta1.resources.PatchRhelHostRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/kessel.inventory.v1beta1.resources.PatchRhelHostResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/google.rpc.Status'
 components:
     schemas:
         google.protobuf.Any:
@@ -820,6 +843,20 @@ components:
                     allOf:
                         - $ref: '#/components/schemas/kessel.inventory.v1beta1.resources.ReporterData'
                     description: Write only reporter specific data
+        kessel.inventory.v1beta1.resources.PatchRhelHostRequest:
+            type: object
+            properties:
+                rhel_host:
+                    $ref: '#/components/schemas/kessel.inventory.v1beta1.resources.RhelHost'
+                updateMask:
+                    type: string
+                    description: |-
+                        list of paths that can be patched.
+                         Current supported values: rhel_host.metadata.workspace_id, rhel_host.reporter_data.api_href, rhel_host.reporter_data.console_href
+                    format: field-mask
+        kessel.inventory.v1beta1.resources.PatchRhelHostResponse:
+            type: object
+            properties: {}
         kessel.inventory.v1beta1.resources.ReporterData:
             type: object
             properties:

@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	KesselRhelHostService_CreateRhelHost_FullMethodName = "/kessel.inventory.v1beta1.resources.KesselRhelHostService/CreateRhelHost"
 	KesselRhelHostService_UpdateRhelHost_FullMethodName = "/kessel.inventory.v1beta1.resources.KesselRhelHostService/UpdateRhelHost"
+	KesselRhelHostService_PatchRhelHost_FullMethodName  = "/kessel.inventory.v1beta1.resources.KesselRhelHostService/PatchRhelHost"
 	KesselRhelHostService_DeleteRhelHost_FullMethodName = "/kessel.inventory.v1beta1.resources.KesselRhelHostService/DeleteRhelHost"
 )
 
@@ -30,6 +31,7 @@ const (
 type KesselRhelHostServiceClient interface {
 	CreateRhelHost(ctx context.Context, in *CreateRhelHostRequest, opts ...grpc.CallOption) (*CreateRhelHostResponse, error)
 	UpdateRhelHost(ctx context.Context, in *UpdateRhelHostRequest, opts ...grpc.CallOption) (*UpdateRhelHostResponse, error)
+	PatchRhelHost(ctx context.Context, in *PatchRhelHostRequest, opts ...grpc.CallOption) (*PatchRhelHostResponse, error)
 	DeleteRhelHost(ctx context.Context, in *DeleteRhelHostRequest, opts ...grpc.CallOption) (*DeleteRhelHostResponse, error)
 }
 
@@ -61,6 +63,16 @@ func (c *kesselRhelHostServiceClient) UpdateRhelHost(ctx context.Context, in *Up
 	return out, nil
 }
 
+func (c *kesselRhelHostServiceClient) PatchRhelHost(ctx context.Context, in *PatchRhelHostRequest, opts ...grpc.CallOption) (*PatchRhelHostResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PatchRhelHostResponse)
+	err := c.cc.Invoke(ctx, KesselRhelHostService_PatchRhelHost_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *kesselRhelHostServiceClient) DeleteRhelHost(ctx context.Context, in *DeleteRhelHostRequest, opts ...grpc.CallOption) (*DeleteRhelHostResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteRhelHostResponse)
@@ -77,6 +89,7 @@ func (c *kesselRhelHostServiceClient) DeleteRhelHost(ctx context.Context, in *De
 type KesselRhelHostServiceServer interface {
 	CreateRhelHost(context.Context, *CreateRhelHostRequest) (*CreateRhelHostResponse, error)
 	UpdateRhelHost(context.Context, *UpdateRhelHostRequest) (*UpdateRhelHostResponse, error)
+	PatchRhelHost(context.Context, *PatchRhelHostRequest) (*PatchRhelHostResponse, error)
 	DeleteRhelHost(context.Context, *DeleteRhelHostRequest) (*DeleteRhelHostResponse, error)
 	mustEmbedUnimplementedKesselRhelHostServiceServer()
 }
@@ -93,6 +106,9 @@ func (UnimplementedKesselRhelHostServiceServer) CreateRhelHost(context.Context, 
 }
 func (UnimplementedKesselRhelHostServiceServer) UpdateRhelHost(context.Context, *UpdateRhelHostRequest) (*UpdateRhelHostResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRhelHost not implemented")
+}
+func (UnimplementedKesselRhelHostServiceServer) PatchRhelHost(context.Context, *PatchRhelHostRequest) (*PatchRhelHostResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchRhelHost not implemented")
 }
 func (UnimplementedKesselRhelHostServiceServer) DeleteRhelHost(context.Context, *DeleteRhelHostRequest) (*DeleteRhelHostResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRhelHost not implemented")
@@ -154,6 +170,24 @@ func _KesselRhelHostService_UpdateRhelHost_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KesselRhelHostService_PatchRhelHost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchRhelHostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KesselRhelHostServiceServer).PatchRhelHost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KesselRhelHostService_PatchRhelHost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KesselRhelHostServiceServer).PatchRhelHost(ctx, req.(*PatchRhelHostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _KesselRhelHostService_DeleteRhelHost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteRhelHostRequest)
 	if err := dec(in); err != nil {
@@ -186,6 +220,10 @@ var KesselRhelHostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateRhelHost",
 			Handler:    _KesselRhelHostService_UpdateRhelHost_Handler,
+		},
+		{
+			MethodName: "PatchRhelHost",
+			Handler:    _KesselRhelHostService_PatchRhelHost_Handler,
 		},
 		{
 			MethodName: "DeleteRhelHost",

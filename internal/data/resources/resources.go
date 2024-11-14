@@ -74,6 +74,26 @@ func (r *Repo) Update(ctx context.Context, m *model.Resource, id uuid.UUID) (*mo
 	return m, nil
 }
 
+func (r *Repo) Patch(ctx context.Context, m *model.Resource, id uuid.UUID) (*model.Resource, error) {
+	session := r.DB.Session(&gorm.Session{})
+
+	_, err := r.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := session.Create(copyHistory(m, id, model.OperationTypePatch)).Error; err != nil {
+		return nil, err
+	}
+
+	m.ID = id
+	if err := session.Save(m).Error; err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
 func (r *Repo) Delete(ctx context.Context, id uuid.UUID) (*model.Resource, error) {
 	session := r.DB.Session(&gorm.Session{})
 

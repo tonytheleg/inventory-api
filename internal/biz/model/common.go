@@ -17,6 +17,7 @@ type OperationType string
 const (
 	OperationTypeCreate OperationType = "CREATE"
 	OperationTypeUpdate OperationType = "UPDATE"
+	OperationTypePatch  OperationType = "PATCH"
 	OperationTypeDelete OperationType = "DELETE"
 )
 

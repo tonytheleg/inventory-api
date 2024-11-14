@@ -18,6 +18,7 @@ import (
 type ResourceRepository interface {
 	Save(context.Context, *model.Resource) (*model.Resource, error)
 	Update(context.Context, *model.Resource, uuid.UUID) (*model.Resource, error)
+	Patch(context.Context, *model.Resource, uuid.UUID) (*model.Resource, error)
 	Delete(context.Context, uuid.UUID) (*model.Resource, error)
 	FindByID(context.Context, uuid.UUID) (*model.Resource, error)
 	FindByReporterResourceId(context.Context, model.ReporterResourceId) (*model.Resource, error)
@@ -140,6 +141,42 @@ func (uc *Usecase) Update(ctx context.Context, m *model.Resource, id model.Repor
 	uc.log.WithContext(ctx).Infof("Updated Resource: %v(%v)", m.ID, m.ResourceType)
 	return ret, nil
 
+}
+
+func (uc *Usecase) Patch(ctx context.Context, m *model.Resource, id model.ReporterResourceId) (*model.Resource, error) {
+	// check if the resource exists
+	existingResource, err := uc.repository.FindByReporterResourceId(ctx, id)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrResourceNotFound
+		} else {
+			return nil, ErrDatabaseError
+		}
+	}
+
+	if ret, err := uc.repository.Patch(ctx, m, existingResource.ID); err != nil {
+		return nil, err
+	} else {
+		if uc.Eventer != nil {
+			err := biz.DefaultResourceSendEvent(ctx, m, uc.Eventer, *m.UpdatedAt, eventingapi.OperationTypeUpdated)
+
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if uc.Authz != nil {
+			// Todo: Update workspace if there is any change
+			err := biz.DefaultSetWorkspace(ctx, uc.Namespace, m, uc.Authz)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		uc.log.WithContext(ctx).Infof("Patched Resource: %v(%v)", m.ID, m.ResourceType)
+		return ret, nil
+	}
 }
 
 // Delete deletes a model from the database, removes related tuples from the relations-api, and issues a delete event.

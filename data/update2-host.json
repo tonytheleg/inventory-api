@@ -1,0 +1,15 @@
+{
+  "rhel_host": {
+    "metadata": {
+      "resource_type": "rhel_host",
+      "workspace_id": "01932c7e-e93e-719c-a488-3159877367b1"
+    },
+    "reporter_data": {
+      "reporter_type": "ACM",
+      "reporter_version": "0.1",
+      "local_resource_id": "1",
+      "api_href": "www.updated.com",
+      "console_href": "www.updated.com"
+    }
+  }
+}

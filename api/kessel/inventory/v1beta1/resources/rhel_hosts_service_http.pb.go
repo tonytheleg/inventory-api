@@ -21,11 +21,13 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationKesselRhelHostServiceCreateRhelHost = "/kessel.inventory.v1beta1.resources.KesselRhelHostService/CreateRhelHost"
 const OperationKesselRhelHostServiceDeleteRhelHost = "/kessel.inventory.v1beta1.resources.KesselRhelHostService/DeleteRhelHost"
+const OperationKesselRhelHostServicePatchRhelHost = "/kessel.inventory.v1beta1.resources.KesselRhelHostService/PatchRhelHost"
 const OperationKesselRhelHostServiceUpdateRhelHost = "/kessel.inventory.v1beta1.resources.KesselRhelHostService/UpdateRhelHost"
 
 type KesselRhelHostServiceHTTPServer interface {
 	CreateRhelHost(context.Context, *CreateRhelHostRequest) (*CreateRhelHostResponse, error)
 	DeleteRhelHost(context.Context, *DeleteRhelHostRequest) (*DeleteRhelHostResponse, error)
+	PatchRhelHost(context.Context, *PatchRhelHostRequest) (*PatchRhelHostResponse, error)
 	UpdateRhelHost(context.Context, *UpdateRhelHostRequest) (*UpdateRhelHostResponse, error)
 }
 
@@ -33,6 +35,7 @@ func RegisterKesselRhelHostServiceHTTPServer(s *http.Server, srv KesselRhelHostS
 	r := s.Route("/")
 	r.POST("/api/inventory/v1beta1/resources/rhel-hosts", _KesselRhelHostService_CreateRhelHost0_HTTP_Handler(srv))
 	r.PUT("/api/inventory/v1beta1/resources/rhel-hosts", _KesselRhelHostService_UpdateRhelHost0_HTTP_Handler(srv))
+	r.PATCH("/api/inventory/v1beta1/resources/rhel-hosts", _KesselRhelHostService_PatchRhelHost0_HTTP_Handler(srv))
 	r.DELETE("/api/inventory/v1beta1/resources/rhel-hosts", _KesselRhelHostService_DeleteRhelHost0_HTTP_Handler(srv))
 }
 
@@ -80,6 +83,28 @@ func _KesselRhelHostService_UpdateRhelHost0_HTTP_Handler(srv KesselRhelHostServi
 	}
 }
 
+func _KesselRhelHostService_PatchRhelHost0_HTTP_Handler(srv KesselRhelHostServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PatchRhelHostRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationKesselRhelHostServicePatchRhelHost)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PatchRhelHost(ctx, req.(*PatchRhelHostRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PatchRhelHostResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _KesselRhelHostService_DeleteRhelHost0_HTTP_Handler(srv KesselRhelHostServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in DeleteRhelHostRequest
@@ -105,6 +130,7 @@ func _KesselRhelHostService_DeleteRhelHost0_HTTP_Handler(srv KesselRhelHostServi
 type KesselRhelHostServiceHTTPClient interface {
 	CreateRhelHost(ctx context.Context, req *CreateRhelHostRequest, opts ...http.CallOption) (rsp *CreateRhelHostResponse, err error)
 	DeleteRhelHost(ctx context.Context, req *DeleteRhelHostRequest, opts ...http.CallOption) (rsp *DeleteRhelHostResponse, err error)
+	PatchRhelHost(ctx context.Context, req *PatchRhelHostRequest, opts ...http.CallOption) (rsp *PatchRhelHostResponse, err error)
 	UpdateRhelHost(ctx context.Context, req *UpdateRhelHostRequest, opts ...http.CallOption) (rsp *UpdateRhelHostResponse, err error)
 }
 
@@ -136,6 +162,19 @@ func (c *KesselRhelHostServiceHTTPClientImpl) DeleteRhelHost(ctx context.Context
 	opts = append(opts, http.Operation(OperationKesselRhelHostServiceDeleteRhelHost))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "DELETE", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *KesselRhelHostServiceHTTPClientImpl) PatchRhelHost(ctx context.Context, in *PatchRhelHostRequest, opts ...http.CallOption) (*PatchRhelHostResponse, error) {
+	var out PatchRhelHostResponse
+	pattern := "/api/inventory/v1beta1/resources/rhel-hosts"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationKesselRhelHostServicePatchRhelHost))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PATCH", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
