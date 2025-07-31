@@ -75,12 +75,11 @@ func (t *TestCase) TestSetup() []error {
 	authorizer.On("CreateTuples", mock.Anything, mock.Anything).Return(createTupleResponse, nil)
 	authorizer.On("DeleteTuples", mock.Anything, mock.Anything).Return(deleteTupleResponse, nil)
 
-	consumer := mocks.MockConsumer{}
-	t.inv, err = New(cfg, &gorm.DB{}, authz.CompletedConfig{}, authorizer, notifier, t.logger)
+	consumer := &mocks.MockConsumer{}
+	t.inv, err = New(cfg, &gorm.DB{}, consumer, authz.CompletedConfig{}, authorizer, notifier, t.logger)
 	if err != nil {
 		errs = append(errs, err)
 	}
-	t.inv.Consumer = &consumer
 	err = t.metrics.New(otel.Meter("github.com/project-kessel/inventory-api/blob/main/internal/server/otel"))
 	if err != nil {
 		errs = append(errs, err)

@@ -76,18 +76,23 @@ type InventoryConsumer struct {
 }
 
 // New instantiates a new InventoryConsumer
-func New(config CompletedConfig, db *gorm.DB, authz authz.CompletedConfig, authorizer api.Authorizer, notifier pubsub.Notifier, logger *log.Helper) (InventoryConsumer, error) {
-	logger.Info("Setting up kafka consumer")
-	logger.Debugf("completed kafka config: %+v", config.KafkaConfig)
-	consumer, err := kafka.NewConsumer(config.KafkaConfig)
-	if err != nil {
-		logger.Errorf("error creating kafka consumer: %v", err)
-		return InventoryConsumer{}, err
+func New(config CompletedConfig, db *gorm.DB, consumer Consumer, authz authz.CompletedConfig, authorizer api.Authorizer, notifier pubsub.Notifier, logger *log.Helper) (InventoryConsumer, error) {
+	if consumer == nil {
+		logger.Info("Setting up kafka consumer")
+		logger.Debugf("completed kafka config: %+v", config.KafkaConfig)
+		kafkaConsumer, err := kafka.NewConsumer(config.KafkaConfig)
+		if err != nil {
+			logger.Errorf("error creating kafka consumer: %v", err)
+			return InventoryConsumer{}, err
+		}
+		consumer = kafkaConsumer
+	} else {
+		logger.Info("Setting up kafka consumer with provided consumer")
 	}
 
 	var mc metricscollector.MetricsCollector
 	meter := otel.Meter("github.com/project-kessel/inventory-api/blob/main/internal/server/otel")
-	err = mc.New(meter)
+	err := mc.New(meter)
 	if err != nil {
 		logger.Errorf("error creating metrics collector: %v", err)
 		return InventoryConsumer{}, err
