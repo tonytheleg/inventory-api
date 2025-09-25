@@ -63,6 +63,7 @@ type ReporterRepresentationSnapshot struct {
 	Generation         uint                   `json:"generation"`
 	ReporterVersion    *string                `json:"reporter_version"`
 	CommonVersion      uint                   `json:"common_version"`
+	ToBeDetermined     string                 `json:"to_be_determined"`
 	Tombstone          bool                   `json:"tombstone"`
 	CreatedAt          time.Time              `json:"created_at"`
 }

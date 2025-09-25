@@ -14,6 +14,7 @@ const (
 	MaxReporterVersionLength    = MaxFieldSize128
 	MaxAPIHrefLength            = MaxFieldSize512
 	MaxConsoleHrefLength        = MaxFieldSize512
+	MaxToBeDeterminedLength     = MaxFieldSize128
 	MaxConsistencyTokenLength   = MaxFieldSize1024
 
 	MinVersionValue    = 0

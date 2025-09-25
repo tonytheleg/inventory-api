@@ -370,6 +370,7 @@ func (f *TestFixture) ValidReporterRepresentation() *ReporterRepresentation {
 		1, // version
 		1, // generation
 		1, // commonVersion
+		"test-data",
 		false,
 		internal.StringPtr("2.7.16"),
 	)
@@ -396,6 +397,7 @@ func (f *TestFixture) ReporterRepresentationWithLocalResourceID(localResourceID 
 		1,
 		1,
 		1,
+		"test-data",
 		false,
 		internal.StringPtr("2.7.16"),
 	)
@@ -418,6 +420,7 @@ func (f *TestFixture) ReporterRepresentationWithResourceType(resourceType string
 		1,
 		1,
 		1,
+		"test-data",
 		false,
 		internal.StringPtr("2.7.16"),
 	)
@@ -459,6 +462,7 @@ func (f *TestFixture) ReporterRepresentationWithTombstone(tombstone bool) *Repor
 		1,
 		1,
 		1,
+		"test-data",
 		tombstone,
 		nil,
 	)
@@ -476,6 +480,7 @@ func (f *TestFixture) ReporterRepresentationWithReporterVersion(ver *string) *Re
 		2,
 		0,
 		1,
+		"test-data",
 		false,
 		ver,
 	)
@@ -493,6 +498,7 @@ func (f *TestFixture) ReporterRepresentationWithNilReporterVersion() *ReporterRe
 		1,
 		1,
 		1,
+		"test-data",
 		false,
 		nil,
 	)

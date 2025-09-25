@@ -207,6 +207,7 @@ func TestReporterRepresentation_EdgeCases(t *testing.T) {
 			1,
 			1,
 			1,
+			"test-data",
 			false,
 			nil,
 		)
@@ -224,6 +225,7 @@ func TestReporterRepresentation_EdgeCases(t *testing.T) {
 			1,
 			1,
 			1,
+			"test-data",
 			false,
 			nil,
 		)
@@ -239,6 +241,7 @@ func TestReporterRepresentation_EdgeCases(t *testing.T) {
 			4294967295, // Max uint32 Version
 			4294967295, // Max uint32 Generation
 			4294967295, // Max uint32 CommonVersion
+			"test-data",
 			false,
 			nil,
 		)
@@ -254,6 +257,7 @@ func TestReporterRepresentation_EdgeCases(t *testing.T) {
 			1,
 			1,
 			1,
+			"test-data",
 			false,
 			internal.StringPtr(""), // Empty ReporterVersion
 		)
@@ -269,6 +273,7 @@ func TestReporterRepresentation_EdgeCases(t *testing.T) {
 			1,
 			1,
 			1,
+			"test-data",
 			false,
 			nil, // Nil ReporterVersion
 		)
@@ -319,6 +324,7 @@ func TestReporterRepresentation_EdgeCases(t *testing.T) {
 			1,
 			1,
 			1,
+			"test-data",
 			false,
 			nil,
 		)
@@ -334,6 +340,7 @@ func TestReporterRepresentation_EdgeCases(t *testing.T) {
 			1,
 			1,
 			1,
+			"test-data",
 			false,
 			nil,
 		)
@@ -363,6 +370,7 @@ func TestReporterRepresentation_EdgeCases(t *testing.T) {
 					tc.version,
 					1,
 					1,
+					"test-data",
 					false,
 					nil,
 				)
@@ -398,6 +406,7 @@ func TestReporterRepresentation_EdgeCases(t *testing.T) {
 					1,
 					tc.generation,
 					1,
+					"test-data",
 					false,
 					nil,
 				)
@@ -430,6 +439,7 @@ func TestReporterRepresentation_EdgeCases(t *testing.T) {
 					1,
 					1,
 					1,
+					"test-data",
 					tc.tombstone,
 					nil,
 				)
@@ -466,6 +476,7 @@ func TestReporterRepresentation_Serialization(t *testing.T) {
 		AssertEqual(t, original.Version, unmarshaled.Version, "Version should match after JSON round-trip")
 		AssertEqual(t, original.Generation, unmarshaled.Generation, "Generation should match after JSON round-trip")
 		AssertEqual(t, original.Tombstone, unmarshaled.Tombstone, "Tombstone should match after JSON round-trip")
+		AssertEqual(t, original.ToBeDetermined, unmarshaled.ToBeDetermined, "ToBeDetermined should match after JSON round-trip")
 	})
 
 	t.Run("should handle null values in JSON serialization", func(t *testing.T) {

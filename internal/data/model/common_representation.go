@@ -57,6 +57,7 @@ func validateCommonRepresentation(cr *CommonRepresentation) error {
 		bizmodel.ValidateMaxLength("ReportedByReporterType", cr.ReportedByReporterType, MaxReporterTypeLength),
 		bizmodel.ValidateStringRequired("ReportedByReporterInstance", cr.ReportedByReporterInstance),
 		bizmodel.ValidateMaxLength("ReportedByReporterInstance", cr.ReportedByReporterInstance, MaxReporterInstanceIDLength),
+		bizmodel.ValidateOptionalString("ToBeDetermined", &cr.ToBeDetermined, MaxToBeDeterminedLength),
 	)
 }
 
