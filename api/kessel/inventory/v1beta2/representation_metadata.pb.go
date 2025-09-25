@@ -28,6 +28,7 @@ type RepresentationMetadata struct {
 	ApiHref         string                 `protobuf:"bytes,2,opt,name=api_href,json=apiHref,proto3" json:"api_href,omitempty"`
 	ConsoleHref     *string                `protobuf:"bytes,3,opt,name=console_href,json=consoleHref,proto3,oneof" json:"console_href,omitempty"`
 	ReporterVersion *string                `protobuf:"bytes,4,opt,name=reporter_version,json=reporterVersion,proto3,oneof" json:"reporter_version,omitempty"`
+	ToBeDetermined  *string                `protobuf:"bytes,5,opt,name=to_be_determined,json=toBeDetermined,proto3,oneof" json:"to_be_determined,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -90,18 +91,27 @@ func (x *RepresentationMetadata) GetReporterVersion() string {
 	return ""
 }
 
+func (x *RepresentationMetadata) GetToBeDetermined() string {
+	if x != nil && x.ToBeDetermined != nil {
+		return *x.ToBeDetermined
+	}
+	return ""
+}
+
 var File_kessel_inventory_v1beta2_representation_metadata_proto protoreflect.FileDescriptor
 
 const file_kessel_inventory_v1beta2_representation_metadata_proto_rawDesc = "" +
 	"\n" +
-	"6kessel/inventory/v1beta2/representation_metadata.proto\x12\x18kessel.inventory.v1beta2\x1a\x1bbuf/validate/validate.proto\"\xef\x01\n" +
+	"6kessel/inventory/v1beta2/representation_metadata.proto\x12\x18kessel.inventory.v1beta2\x1a\x1bbuf/validate/validate.proto\"\xb3\x02\n" +
 	"\x16RepresentationMetadata\x123\n" +
 	"\x11local_resource_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x0flocalResourceId\x12\"\n" +
 	"\bapi_href\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\aapiHref\x12&\n" +
 	"\fconsole_href\x18\x03 \x01(\tH\x00R\vconsoleHref\x88\x01\x01\x12.\n" +
-	"\x10reporter_version\x18\x04 \x01(\tH\x01R\x0freporterVersion\x88\x01\x01B\x0f\n" +
+	"\x10reporter_version\x18\x04 \x01(\tH\x01R\x0freporterVersion\x88\x01\x01\x12-\n" +
+	"\x10to_be_determined\x18\x05 \x01(\tH\x02R\x0etoBeDetermined\x88\x01\x01B\x0f\n" +
 	"\r_console_hrefB\x13\n" +
-	"\x11_reporter_versionBr\n" +
+	"\x11_reporter_versionB\x13\n" +
+	"\x11_to_be_determinedBr\n" +
 	"(org.project_kessel.api.inventory.v1beta2P\x01ZDgithub.com/project-kessel/inventory-api/api/kessel/inventory/v1beta2b\x06proto3"
 
 var (
