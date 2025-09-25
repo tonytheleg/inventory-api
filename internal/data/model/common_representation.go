@@ -17,6 +17,7 @@ type CommonRepresentation struct {
 	Version                    uint      `gorm:"type:bigint;primaryKey;check:version >= 0"`
 	ReportedByReporterType     string    `gorm:"size:128"`
 	ReportedByReporterInstance string    `gorm:"size:128"`
+	ToBeDetermined             string    `gorm:"size:128"`
 	CreatedAt                  time.Time
 }
 
@@ -28,6 +29,7 @@ func NewCommonRepresentation(
 	version uint,
 	reportedByReporterType string,
 	reportedByReporterInstance string,
+	toBeDetermined string,
 ) (*CommonRepresentation, error) {
 	cr := &CommonRepresentation{
 		Representation: Representation{
@@ -37,6 +39,7 @@ func NewCommonRepresentation(
 		Version:                    version,
 		ReportedByReporterType:     reportedByReporterType,
 		ReportedByReporterInstance: reportedByReporterInstance,
+		ToBeDetermined:             toBeDetermined,
 	}
 
 	if err := validateCommonRepresentation(cr); err != nil {
@@ -70,11 +73,12 @@ func (cr CommonRepresentation) SerializeToSnapshot() bizmodel.CommonRepresentati
 		Version:                    cr.Version,
 		ReportedByReporterType:     cr.ReportedByReporterType,
 		ReportedByReporterInstance: cr.ReportedByReporterInstance,
+		ToBeDetermined:             cr.ToBeDetermined,
 		CreatedAt:                  cr.CreatedAt,
 	}
 }
 
-// DeserializeFromSnapshot creates GORM CommonRepresentation from snapshot - direct initialization without validation
+// DeserializeCommonRepresentationFromSnapshot creates GORM CommonRepresentation from snapshot - direct initialization without validation
 func DeserializeCommonRepresentationFromSnapshot(snapshot bizmodel.CommonRepresentationSnapshot) CommonRepresentation {
 	return CommonRepresentation{
 		Representation: Representation{
@@ -84,6 +88,7 @@ func DeserializeCommonRepresentationFromSnapshot(snapshot bizmodel.CommonReprese
 		Version:                    snapshot.Version,
 		ReportedByReporterType:     snapshot.ReportedByReporterType,
 		ReportedByReporterInstance: snapshot.ReportedByReporterInstance,
+		ToBeDetermined:             snapshot.ToBeDetermined,
 		CreatedAt:                  snapshot.CreatedAt,
 	}
 }

@@ -34,6 +34,7 @@ func (f *TestFixture) ValidCommonRepresentation() *CommonRepresentation {
 		1,
 		"hbi",
 		"3088be62-1c60-4884-b133-9200542d0b3f",
+		"test-value",
 	)
 	if err != nil {
 		f.t.Fatalf("Failed to create valid CommonRepresentation: %v", err)
@@ -65,6 +66,7 @@ func (f *TestFixture) CommonRepresentationWithID(id string) *CommonRepresentatio
 		1,
 		"hbi",
 		"3088be62-1c60-4884-b133-9200542d0b3f",
+		"test-data",
 	)
 	if err != nil {
 		// For test cases expecting invalid data, return the struct anyway for testing
@@ -95,6 +97,7 @@ func (f *TestFixture) CommonRepresentationWithVersion(version uint) *CommonRepre
 		version,
 		"hbi",
 		"3088be62-1c60-4884-b133-9200542d0b3f",
+		"test-data",
 	)
 	if err != nil {
 		f.t.Fatalf("Cannot create CommonRepresentation with version %d: %v", version, err)
@@ -114,6 +117,7 @@ func (f *TestFixture) CommonRepresentationWithResourceType(resourceType string) 
 		1,
 		"hbi",
 		"3088be62-1c60-4884-b133-9200542d0b3f",
+		"test-data",
 	)
 	if err != nil {
 		f.t.Fatalf("Cannot create CommonRepresentation with resource type %q: %v", resourceType, err)
@@ -133,6 +137,7 @@ func (f *TestFixture) CommonRepresentationWithReporterType(reporterType string) 
 		1,
 		reporterType,
 		"3088be62-1c60-4884-b133-9200542d0b3f",
+		"test-data",
 	)
 	if err != nil {
 		f.t.Fatalf("Cannot create CommonRepresentation with reporter type %q: %v", reporterType, err)
@@ -152,9 +157,30 @@ func (f *TestFixture) CommonRepresentationWithReporterInstance(reporterInstance 
 		1,
 		"hbi",
 		reporterInstance,
+		"test-data",
 	)
 	if err != nil {
 		f.t.Fatalf("Cannot create CommonRepresentation with reporter instance %q: %v", reporterInstance, err)
+	}
+	return cr
+}
+
+// CommonRepresentationWithToBeDetermined returns a CommonRepresentation with specified ToBeDetermined ID
+func (f *TestFixture) CommonRepresentationWithToBeDetermined(toBeDetermined string) *CommonRepresentation {
+	deterministicUUID := uuid.NewSHA1(uuid.NameSpaceOID, []byte("dd1b73b9-3e33-4264-968c-e3ce55b9afec"))
+
+	cr, err := NewCommonRepresentation(
+		deterministicUUID,
+		internal.JsonObject{
+			"workspace_id": "a64d17d0-aec3-410a-acd0-e0b85b22c076",
+		},
+		1,
+		"hbi",
+		"3088be62-1c60-4884-b133-9200542d0b3f",
+		toBeDetermined,
+	)
+	if err != nil {
+		f.t.Fatalf("Cannot create CommonRepresentation with toBeDetermined value %q: %v", toBeDetermined, err)
 	}
 	return cr
 }
@@ -169,6 +195,7 @@ func (f *TestFixture) CommonRepresentationWithData(data internal.JsonObject) *Co
 		1,
 		"hbi",
 		"3088be62-1c60-4884-b133-9200542d0b3f",
+		"test-data",
 	)
 	if err != nil {
 		f.t.Fatalf("Cannot create CommonRepresentation with data %+v: %v", data, err)
@@ -186,6 +213,7 @@ func (f *TestFixture) CommonRepresentationWithEmptyData() *CommonRepresentation 
 		1,
 		"hbi",
 		"3088be62-1c60-4884-b133-9200542d0b3f",
+		"test-data",
 	)
 	if err != nil {
 		f.t.Fatalf("Cannot create CommonRepresentation with empty data: %v", err)
@@ -206,6 +234,7 @@ func (f *TestFixture) CommonRepresentationWithNilData() *CommonRepresentation {
 		Version:                    1,
 		ReportedByReporterType:     "hbi",
 		ReportedByReporterInstance: "3088be62-1c60-4884-b133-9200542d0b3f",
+		ToBeDetermined:             "test-data",
 	}
 }
 
@@ -219,6 +248,7 @@ func (f *TestFixture) MinimalCommonRepresentation() *CommonRepresentation {
 		1,
 		"ACM",
 		"57a317b1-4040-4c26-8d41-dd589ba1d2eb",
+		"test-data",
 	)
 	if err != nil {
 		f.t.Fatalf("Failed to create minimal CommonRepresentation: %v", err)
@@ -236,6 +266,7 @@ func (f *TestFixture) MaximalCommonRepresentation() *CommonRepresentation {
 		4294967295, // Max uint32
 		"ACM",
 		"14c6b63e-49b2-4cc2-99de-5d914b657548",
+		"test-data",
 	)
 	if err != nil {
 		f.t.Fatalf("Failed to create maximal CommonRepresentation: %v", err)
@@ -257,6 +288,7 @@ func (f *TestFixture) UnicodeCommonRepresentation() *CommonRepresentation {
 		1,
 		"测试-reporter",
 		"测试-instance",
+		"test-data",
 	)
 	if err != nil {
 		// Unicode should be valid, but if not, create directly for testing
@@ -296,6 +328,7 @@ func (f *TestFixture) SpecialCharsCommonRepresentation() *CommonRepresentation {
 		1,
 		"special-†‡•-reporter",
 		"special-™®©-instance",
+		"test-data",
 	)
 	if err != nil {
 		// Special characters should be valid, but if not, create directly for testing
@@ -316,6 +349,7 @@ func (f *TestFixture) SpecialCharsCommonRepresentation() *CommonRepresentation {
 			Version:                    1,
 			ReportedByReporterType:     "special-†‡•-reporter",
 			ReportedByReporterInstance: "special-™®©-instance",
+			ToBeDetermined:             "test-data",
 		}
 	}
 	return cr

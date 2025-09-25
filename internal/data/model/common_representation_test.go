@@ -73,6 +73,7 @@ func TestCommonRepresentation_Infrastructure_Structure(t *testing.T) {
 		// Verify size constraints match constants
 		AssertGORMTag(t, cr, "ReportedByReporterType", "size:128")
 		AssertGORMTag(t, cr, "ReportedByReporterInstance", "size:128")
+		AssertGORMTag(t, cr, "ToBeDetermined", "size:128")
 	})
 
 	t.Run("should have correct non-nullable field types", func(t *testing.T) {
@@ -85,6 +86,7 @@ func TestCommonRepresentation_Infrastructure_Structure(t *testing.T) {
 		AssertFieldType(t, cr, "Version", reflect.TypeOf(uint(0)))
 		AssertFieldType(t, cr, "ReportedByReporterType", reflect.TypeOf(""))
 		AssertFieldType(t, cr, "ReportedByReporterInstance", reflect.TypeOf(""))
+		AssertFieldType(t, cr, "ToBeDetermined", reflect.TypeOf(""))
 		AssertFieldType(t, cr, "Data", reflect.TypeOf(internal.JsonObject{}))
 	})
 }
@@ -136,6 +138,7 @@ func TestCommonRepresentation_Infrastructure_EdgeCases(t *testing.T) {
 
 		cr.ReportedByReporterType = maxLen128
 		cr.ReportedByReporterInstance = maxLen128
+		cr.ToBeDetermined = maxLen128
 
 		if !isValidCommonRepresentation(cr) {
 			t.Error("CommonRepresentation with maximum length string values should be valid")
@@ -295,6 +298,7 @@ func TestCommonRepresentation_Infrastructure_Serialization(t *testing.T) {
 		AssertEqual(t, original.Version, unmarshaled.Version, "Version should match after JSON round-trip")
 		AssertEqual(t, original.ReportedByReporterType, unmarshaled.ReportedByReporterType, "ReportedByReporterType should match after JSON round-trip")
 		AssertEqual(t, original.ReportedByReporterInstance, unmarshaled.ReportedByReporterInstance, "ReportedByReporterInstance should match after JSON round-trip")
+		AssertEqual(t, original.ToBeDetermined, unmarshaled.ToBeDetermined, "ToBeDetermined should match after JSON round-trip")
 	})
 
 	t.Run("should handle empty string values in JSON serialization", func(t *testing.T) {
@@ -430,6 +434,7 @@ func TestCommonRepresentation_Infrastructure_Serialization(t *testing.T) {
 			1,
 			"hbi",
 			"test-instance",
+			"test-data",
 		)
 		AssertNoError(t, err, "Should be able to create CommonRepresentation with nil data")
 

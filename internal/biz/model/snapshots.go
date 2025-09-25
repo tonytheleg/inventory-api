@@ -51,6 +51,7 @@ type CommonRepresentationSnapshot struct {
 	Version                    uint                   `json:"version"`
 	ReportedByReporterType     string                 `json:"reported_by_reporter_type"`
 	ReportedByReporterInstance string                 `json:"reported_by_reporter_instance"`
+	ToBeDetermined             string                 `json:"to_be_determined"`
 	CreatedAt                  time.Time              `json:"created_at"`
 }
 
