@@ -75,6 +75,7 @@ func TestReporterDataRepresentation_Initialization(t *testing.T) {
 			fixture.ValidGenerationType(),
 			fixture.ValidRepresentationType(),
 			fixture.ValidCommonVersionType(),
+			fixture.ValidToBeDeterminedType(),
 			fixture.ValidReporterVersionType(),
 		)
 
@@ -90,6 +91,7 @@ func TestReporterDataRepresentation_Initialization(t *testing.T) {
 			fixture.ValidGenerationType(),
 			fixture.ValidRepresentationType(),
 			fixture.ValidCommonVersionType(),
+			fixture.ValidToBeDeterminedType(),
 			fixture.NilReporterVersionType(),
 		)
 
@@ -105,6 +107,7 @@ func TestReporterDataRepresentation_Initialization(t *testing.T) {
 			fixture.ValidGenerationType(),
 			fixture.NilRepresentationType(),
 			fixture.ValidCommonVersionType(),
+			fixture.ValidToBeDeterminedType(),
 			fixture.ValidReporterVersionType(),
 		)
 
@@ -120,6 +123,7 @@ func TestReporterDataRepresentation_Initialization(t *testing.T) {
 			fixture.ValidGenerationType(),
 			fixture.EmptyRepresentationType(),
 			fixture.ValidCommonVersionType(),
+			fixture.ValidToBeDeterminedType(),
 			fixture.ValidReporterVersionType(),
 		)
 
@@ -135,6 +139,7 @@ func TestReporterDataRepresentation_Initialization(t *testing.T) {
 			fixture.ValidGenerationType(),
 			fixture.ValidRepresentationType(),
 			fixture.ValidCommonVersionType(),
+			fixture.ValidToBeDeterminedType(),
 			fixture.ValidReporterVersionType(),
 		)
 
@@ -150,6 +155,7 @@ func TestReporterDataRepresentation_Initialization(t *testing.T) {
 			fixture.ValidGenerationType(),
 			fixture.ValidRepresentationType(),
 			fixture.ValidCommonVersionType(),
+			fixture.ValidToBeDeterminedType(),
 			fixture.ValidReporterVersionType(),
 		)
 
@@ -165,6 +171,7 @@ func TestReporterDataRepresentation_Initialization(t *testing.T) {
 			fixture.ValidGenerationType(),
 			fixture.ValidRepresentationType(),
 			fixture.ValidCommonVersionType(),
+			fixture.ValidToBeDeterminedType(),
 			fixture.ValidReporterVersionType(),
 		)
 
@@ -250,6 +257,7 @@ func TestReporterRepresentation_BusinessRules(t *testing.T) {
 			fixture.ValidGenerationType(),
 			fixture.ValidRepresentationType(),
 			fixture.ValidCommonVersionType(),
+			fixture.ValidToBeDeterminedType(),
 			fixture.ValidReporterVersionType(),
 		)
 
@@ -306,6 +314,7 @@ func TestReporterRepresentation_BusinessRules(t *testing.T) {
 			fixture.ValidGenerationType(),
 			fixture.ValidRepresentationType(),
 			fixture.ValidCommonVersionType(),
+			fixture.ValidToBeDeterminedType(),
 			fixture.ValidReporterVersionType(),
 		)
 
@@ -329,6 +338,7 @@ func TestReporterRepresentation_BusinessRules(t *testing.T) {
 			0, // zero generation
 			fixture.ValidRepresentationType(),
 			0, // zero common version
+			fixture.ValidToBeDeterminedType(),
 			fixture.ValidReporterVersionType(),
 		)
 

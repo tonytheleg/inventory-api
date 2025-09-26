@@ -15,6 +15,7 @@ type ReporterRepresentation struct {
 	generation         Generation
 	reporterVersion    *ReporterVersion
 	commonVersion      Version
+	toBeDetermined     ToBeDetermined
 	tombstone          Tombstone
 }
 
@@ -32,6 +33,7 @@ func NewReporterDataRepresentation(
 	generation Generation,
 	data Representation,
 	commonVersion Version,
+	toBeDetermined ToBeDetermined,
 	reporterVersion *ReporterVersion,
 ) (ReporterDataRepresentation, error) {
 
@@ -50,6 +52,7 @@ func NewReporterDataRepresentation(
 			version:            version,
 			generation:         generation,
 			commonVersion:      commonVersion,
+			toBeDetermined:     toBeDetermined,
 			reporterVersion:    reporterVersion,
 			tombstone:          NewTombstone(false),
 		},
@@ -104,6 +107,7 @@ func (rr ReporterRepresentation) Serialize() ReporterRepresentationSnapshot {
 		Generation:         rr.generation.Serialize(),
 		ReporterVersion:    reporterVersionStr,
 		CommonVersion:      rr.commonVersion.Serialize(),
+		ToBeDetermined:     rr.toBeDetermined.Serialize(),
 		Tombstone:          rr.tombstone.Serialize(),
 		CreatedAt:          time.Now(), // TODO: Add proper timestamp from domain entity if available
 	}
@@ -120,6 +124,7 @@ func DeserializeReporterDataRepresentation(snapshot *ReporterRepresentationSnaps
 	version := DeserializeVersion(snapshot.Version)
 	generation := DeserializeGeneration(snapshot.Generation)
 	commonVersion := DeserializeVersion(snapshot.CommonVersion)
+	toBeDetermined := DeserializeToBeDetermined(snapshot.ToBeDetermined)
 	tombstone := DeserializeTombstone(snapshot.Tombstone)
 
 	var reporterVersion *ReporterVersion
@@ -135,6 +140,7 @@ func DeserializeReporterDataRepresentation(snapshot *ReporterRepresentationSnaps
 			version:            version,
 			generation:         generation,
 			commonVersion:      commonVersion,
+			toBeDetermined:     toBeDetermined,
 			reporterVersion:    reporterVersion,
 			tombstone:          tombstone,
 		},

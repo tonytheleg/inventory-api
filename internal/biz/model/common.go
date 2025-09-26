@@ -63,6 +63,10 @@ func DeserializeVersion(value uint) Version {
 	return DeserializeUint[Version](value)
 }
 
+func DeserializeToBeDetermined(value string) ToBeDetermined {
+	return Deserialize[ToBeDetermined](value)
+}
+
 func DeserializeResourceId(value uuid.UUID) ResourceId {
 	return DeserializeUUID[ResourceId](value)
 }

@@ -162,6 +162,7 @@ func resourceEventAndRepresentations(
 		generation,
 		reporterData,
 		commonVersion,
+		toBeDetermined,
 		reporterVersion,
 	)
 	if err != nil {

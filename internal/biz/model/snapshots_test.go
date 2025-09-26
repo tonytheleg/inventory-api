@@ -143,6 +143,7 @@ func TestIndividualSnapshotMethods(t *testing.T) {
 
 	// Test ReporterDataRepresentation snapshot - using simpler approach
 	versionOne := NewVersion(1)
+	toBeDetermined := NewToBeDetermined("test-data")
 	genOne := NewGeneration(1)
 	testData := Representation(map[string]interface{}{"test": "data"})
 
@@ -152,6 +153,7 @@ func TestIndividualSnapshotMethods(t *testing.T) {
 		genOne,
 		testData,
 		versionOne,
+		toBeDetermined,
 		nil, // No reporter version for this test
 	)
 	if err != nil {

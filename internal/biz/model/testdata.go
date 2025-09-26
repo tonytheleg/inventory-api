@@ -527,6 +527,7 @@ type ReporterRepresentationTestFixture struct {
 	ValidVersion                 uint
 	ValidGeneration              uint
 	ValidCommonVersion           uint
+	ValidToBeDetermined          string
 	ValidReporterVersion         *string
 	NilReporterVersion           *string
 	EmptyData                    internal.JsonObject
@@ -548,6 +549,7 @@ func NewReporterRepresentationTestFixture() ReporterRepresentationTestFixture {
 		ValidVersion:                 1,
 		ValidGeneration:              2,
 		ValidCommonVersion:           3,
+		ValidToBeDetermined:          "test-data",
 		ValidReporterVersion:         &validReporterVersion,
 		NilReporterVersion:           nil,
 		EmptyData:                    internal.JsonObject{},
@@ -579,6 +581,10 @@ func (f ReporterRepresentationTestFixture) ValidGenerationType() Generation {
 
 func (f ReporterRepresentationTestFixture) ValidCommonVersionType() Version {
 	return NewVersion(f.ValidCommonVersion)
+}
+
+func (f ReporterRepresentationTestFixture) ValidToBeDeterminedType() ToBeDetermined {
+	return NewToBeDetermined(f.ValidToBeDetermined)
 }
 
 func (f ReporterRepresentationTestFixture) ValidReporterVersionType() *ReporterVersion {
