@@ -452,6 +452,8 @@ func TestSave(t *testing.T) {
 				consoleHref, err := bizmodel.NewConsoleHref("https://console.example.com/updated")
 				require.NoError(t, err)
 
+				toBeDetermined := bizmodel.NewToBeDetermined("test-data")
+
 				updatedReporterData, err := bizmodel.NewRepresentation(map[string]interface{}{
 					"name":      "updated-cluster",
 					"namespace": "updated-namespace",
@@ -464,7 +466,7 @@ func TestSave(t *testing.T) {
 				})
 				require.NoError(t, err)
 
-				err = resource.Update(key, apiHref, consoleHref, nil, updatedReporterData, updatedCommonData)
+				err = resource.Update(key, apiHref, consoleHref, toBeDetermined, nil, updatedReporterData, updatedCommonData)
 				require.NoError(t, err)
 
 				err = repo.Save(db, resource, model_legacy.OperationTypeUpdated, "test-tx-2")
@@ -561,6 +563,8 @@ func TestResourceRepository_MultipleHostsLifecycle(t *testing.T) {
 			host1 := createTestResourceWithLocalIdAndType(t, "host-1", "host")
 			host2 := createTestResourceWithLocalIdAndType(t, "host-2", "host")
 
+			toBeDetermined := bizmodel.NewToBeDetermined("test-data")
+
 			err := repo.Save(db, host1, model_legacy.OperationTypeCreated, "tx-create-host1")
 			require.NoError(t, err, "Should create host1")
 
@@ -597,10 +601,10 @@ func TestResourceRepository_MultipleHostsLifecycle(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			err = foundHost1.Update(key1, apiHref, consoleHref, nil, updatedReporterData, updatedCommonData)
+			err = foundHost1.Update(key1, apiHref, consoleHref, toBeDetermined, nil, updatedReporterData, updatedCommonData)
 			require.NoError(t, err, "Should update host1")
 
-			err = foundHost2.Update(key2, apiHref, consoleHref, nil, updatedReporterData, updatedCommonData)
+			err = foundHost2.Update(key2, apiHref, consoleHref, toBeDetermined, nil, updatedReporterData, updatedCommonData)
 			require.NoError(t, err, "Should update host2")
 
 			err = repo.Save(db, *foundHost1, model_legacy.OperationTypeUpdated, "tx-update-host1")
@@ -743,7 +747,9 @@ func TestResourceRepository_PartialDataScenarios(t *testing.T) {
 				})
 				require.NoError(t, err)
 
-				err = foundResource.Update(key, apiHref, consoleHref, nil, reporterOnlyData, emptyCommonData)
+				toBeDetermined := bizmodel.NewToBeDetermined("test-data")
+
+				err = foundResource.Update(key, apiHref, consoleHref, toBeDetermined, nil, reporterOnlyData, emptyCommonData)
 				require.NoError(t, err, "Should update with reporter data only")
 
 				err = repo.Save(db, *foundResource, model_legacy.OperationTypeUpdated, "tx-reporter-update")
@@ -763,7 +769,7 @@ func TestResourceRepository_PartialDataScenarios(t *testing.T) {
 				})
 				require.NoError(t, err)
 
-				err = foundResource.Update(key, apiHref, consoleHref, nil, emptyReporterData, commonOnlyData)
+				err = foundResource.Update(key, apiHref, consoleHref, toBeDetermined, nil, emptyReporterData, commonOnlyData)
 				require.NoError(t, err, "Should update with common data only")
 
 				err = repo.Save(db, *foundResource, model_legacy.OperationTypeUpdated, "tx-common-update")
@@ -838,7 +844,9 @@ func createTestResourceWithLocalId(t *testing.T, localResourceId string) bizmode
 	reporterResourceIdType, err := bizmodel.NewReporterResourceId(reporterResourceId)
 	require.NoError(t, err)
 
-	resource, err := bizmodel.NewResource(resourceIdType, localResourceIdType, resourceType, reporterType, reporterInstanceId, reporterResourceIdType, apiHref, consoleHref, reporterRepresentation, commonRepresentation, nil)
+	toBeDetermined := bizmodel.NewToBeDetermined("test-data")
+
+	resource, err := bizmodel.NewResource(resourceIdType, localResourceIdType, resourceType, reporterType, reporterInstanceId, reporterResourceIdType, apiHref, consoleHref, toBeDetermined, reporterRepresentation, commonRepresentation, nil)
 	require.NoError(t, err)
 
 	return resource
@@ -903,7 +911,9 @@ func createTestResourceWithLocalIdAndType(t *testing.T, localResourceId, resourc
 	commonRepresentation, err := bizmodel.NewRepresentation(commonData)
 	require.NoError(t, err)
 
-	resource, err := bizmodel.NewResource(resourceIdType, localResourceIdType, resourceTypeType, reporterTypeType, reporterInstanceIdType, reporterResourceIdType, apiHref, consoleHref, reporterRepresentation, commonRepresentation, nil)
+	toBeDetermined := bizmodel.NewToBeDetermined("test-data")
+
+	resource, err := bizmodel.NewResource(resourceIdType, localResourceIdType, resourceTypeType, reporterTypeType, reporterInstanceIdType, reporterResourceIdType, apiHref, consoleHref, toBeDetermined, reporterRepresentation, commonRepresentation, nil)
 	require.NoError(t, err)
 
 	return resource
@@ -955,7 +965,9 @@ func createTestResourceWithReporterDataOnly(t *testing.T, localResourceId string
 	commonRepresentation, err := bizmodel.NewRepresentation(commonData)
 	require.NoError(t, err)
 
-	resource, err := bizmodel.NewResource(resourceIdType, localResourceIdType, resourceType, reporterType, reporterInstanceId, reporterResourceIdType, apiHref, consoleHref, reporterRepresentation, commonRepresentation, nil)
+	toBeDetermined := bizmodel.NewToBeDetermined("test-data")
+
+	resource, err := bizmodel.NewResource(resourceIdType, localResourceIdType, resourceType, reporterType, reporterInstanceId, reporterResourceIdType, apiHref, consoleHref, toBeDetermined, reporterRepresentation, commonRepresentation, nil)
 	require.NoError(t, err)
 
 	return resource
@@ -1007,7 +1019,9 @@ func createTestResourceWithCommonDataOnly(t *testing.T, localResourceId string) 
 	commonRepresentation, err := bizmodel.NewRepresentation(commonData)
 	require.NoError(t, err)
 
-	resource, err := bizmodel.NewResource(resourceIdType, localResourceIdType, resourceType, reporterType, reporterInstanceId, reporterResourceIdType, apiHref, consoleHref, reporterRepresentation, commonRepresentation, nil)
+	toBeDetermined := bizmodel.NewToBeDetermined("test-data")
+
+	resource, err := bizmodel.NewResource(resourceIdType, localResourceIdType, resourceType, reporterType, reporterInstanceId, reporterResourceIdType, apiHref, consoleHref, toBeDetermined, reporterRepresentation, commonRepresentation, nil)
 	require.NoError(t, err)
 
 	return resource
@@ -1057,7 +1071,9 @@ func createTestResourceWithMixedCase(t *testing.T) bizmodel.Resource {
 	commonRepresentation, err := bizmodel.NewRepresentation(commonData)
 	require.NoError(t, err)
 
-	resource, err := bizmodel.NewResource(resourceIdType, localResourceIdType, resourceType, reporterType, reporterInstanceId, reporterResourceIdType, apiHref, consoleHref, reporterRepresentation, commonRepresentation, nil)
+	toBeDetermined := bizmodel.NewToBeDetermined("test-data")
+
+	resource, err := bizmodel.NewResource(resourceIdType, localResourceIdType, resourceType, reporterType, reporterInstanceId, reporterResourceIdType, apiHref, consoleHref, toBeDetermined, reporterRepresentation, commonRepresentation, nil)
 	require.NoError(t, err)
 
 	return resource

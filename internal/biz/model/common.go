@@ -251,6 +251,25 @@ func (ri ReporterInstanceId) Serialize() string {
 	return SerializeString(ri)
 }
 
+type ToBeDetermined string
+
+func NewToBeDetermined(toBeDetermined string) ToBeDetermined {
+	toBeDetermined = strings.TrimSpace(toBeDetermined)
+	return ToBeDetermined(toBeDetermined)
+}
+
+func GenerateToBeDetermined() (string, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return "", fmt.Errorf("failed to generate ToBeDetermined value: %w", err)
+	}
+	return id.String(), nil
+}
+
+func (tbd ToBeDetermined) Serialize() string {
+	return SerializeString(tbd)
+}
+
 type ConsistencyToken string
 
 func NewConsistencyToken(token string) (ConsistencyToken, error) {

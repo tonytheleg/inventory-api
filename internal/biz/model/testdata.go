@@ -268,6 +268,7 @@ type CommonRepresentationTestFixture struct {
 	ValidVersion                    uint
 	ValidReportedByReporterType     string
 	ValidReportedByReporterInstance string
+	ValidToBeDetermined             string
 	NilResourceId                   uuid.UUID
 	EmptyData                       internal.JsonObject
 	NilData                         internal.JsonObject
@@ -327,6 +328,11 @@ func (f CommonRepresentationTestFixture) ValidReporterTypeType() ReporterType {
 func (f CommonRepresentationTestFixture) ValidReporterInstanceIdType() ReporterInstanceId {
 	reporterInstanceId, _ := NewReporterInstanceId(f.ValidReportedByReporterInstance)
 	return reporterInstanceId
+}
+
+func (f CommonRepresentationTestFixture) ValidToBeDeterminedType() ToBeDetermined {
+	toBeDetermined := NewToBeDetermined(f.ValidToBeDetermined)
+	return toBeDetermined
 }
 
 func (f CommonRepresentationTestFixture) NilResourceIdType() ResourceId {
@@ -629,6 +635,7 @@ type ResourceTestFixture struct {
 	ValidResourceId                 uuid.UUID
 	ValidApiHref                    string
 	ValidConsoleHref                string
+	ValidToBeDetermined             string
 	ValidReporterRepresentationData internal.JsonObject
 	ValidCommonRepresentationData   internal.JsonObject
 
@@ -712,6 +719,7 @@ func NewResourceTestFixture() ResourceTestFixture {
 		ValidResourceId:                 uuid.MustParse("550e8400-e29b-41d4-a716-446655440401"),
 		ValidApiHref:                    "/api/v1/resources/123",
 		ValidConsoleHref:                "/console/resources/123",
+		ValidToBeDetermined:             "test-data",
 		ValidReporterRepresentationData: internal.JsonObject{"name": "test-reporter-resource", "description": "A test resource for ReporterRepresentation", "metadata": map[string]interface{}{"version": "2.0", "type": "reporter"}},
 		ValidCommonRepresentationData:   internal.JsonObject{"id": "550e8400-e29b-41d4-a716-446655440400", "type": "reporter", "version": 1, "generation": 2, "commonVersion": 3},
 
@@ -816,6 +824,11 @@ func (f ResourceTestFixture) EmptyConsoleHrefType() ConsoleHref {
 func (f ResourceTestFixture) ValidReporterRepresentationType() Representation {
 	rep, _ := NewRepresentation(f.ValidReporterRepresentationData)
 	return rep
+}
+
+func (f ResourceTestFixture) ValidToBeDeterminedType() ToBeDetermined {
+	tbd := NewToBeDetermined(f.ValidToBeDetermined)
+	return tbd
 }
 
 func (f ResourceTestFixture) ValidCommonRepresentationType() Representation {

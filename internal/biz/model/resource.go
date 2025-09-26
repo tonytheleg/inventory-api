@@ -20,7 +20,7 @@ type Resource struct {
 }
 
 // Factory methods
-func NewResource(id ResourceId, localResourceId LocalResourceId, resourceType ResourceType, reporterType ReporterType, reporterInstanceId ReporterInstanceId, reporterResourceId ReporterResourceId, apiHref ApiHref, consoleHref ConsoleHref, reporterRepresentationData Representation, commonRepresentationData Representation, reporterVersion *ReporterVersion) (Resource, error) {
+func NewResource(id ResourceId, localResourceId LocalResourceId, resourceType ResourceType, reporterType ReporterType, reporterInstanceId ReporterInstanceId, reporterResourceId ReporterResourceId, apiHref ApiHref, consoleHref ConsoleHref, toBeDetermined ToBeDetermined, reporterRepresentationData Representation, commonRepresentationData Representation, reporterVersion *ReporterVersion) (Resource, error) {
 
 	commonVersion := NewVersion(initialCommonVersion)
 
@@ -47,6 +47,7 @@ func NewResource(id ResourceId, localResourceId LocalResourceId, resourceType Re
 		reporterResource.Id(),
 		apiHref,
 		consoleHref,
+		toBeDetermined,
 		reporterRepresentationData,
 		commonRepresentationData,
 		reporterVersion,
@@ -74,6 +75,7 @@ func (r *Resource) Update(
 	key ReporterResourceKey,
 	apiHref ApiHref,
 	consoleHref ConsoleHref,
+	toBeDetermined ToBeDetermined,
 	reporterVersion *ReporterVersion,
 	reporterRepresentationData Representation,
 	commonRepresentationData Representation,
@@ -96,6 +98,7 @@ func (r *Resource) Update(
 		reporterResource.Id(),
 		apiHref,
 		consoleHref,
+		toBeDetermined,
 		reporterRepresentationData,
 		commonRepresentationData,
 		reporterVersion,
@@ -144,6 +147,7 @@ func resourceEventAndRepresentations(
 	reporterResourceId ReporterResourceId,
 	apiHref ApiHref,
 	consoleHref ConsoleHref,
+	toBeDetermined ToBeDetermined,
 	reporterData Representation,
 	commonData Representation,
 	reporterVersion *ReporterVersion,
@@ -170,6 +174,7 @@ func resourceEventAndRepresentations(
 		commonVersion,
 		reporterType,
 		reporterInstanceId,
+		toBeDetermined,
 	)
 	if err != nil {
 		return ResourceReportEvent{}, fmt.Errorf("invalid CommonRepresentation: %w", err)

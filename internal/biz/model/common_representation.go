@@ -10,9 +10,10 @@ import (
 
 type CommonRepresentation struct {
 	Representation
-	resourceId ResourceId
-	version    Version
-	reporter   ReporterId
+	resourceId     ResourceId
+	version        Version
+	reporter       ReporterId
+	toBeDetermined ToBeDetermined
 }
 
 func NewCommonRepresentation(
@@ -21,6 +22,7 @@ func NewCommonRepresentation(
 	version Version,
 	reporterType ReporterType,
 	reporterInstanceId ReporterInstanceId,
+	toBeDetermined ToBeDetermined,
 ) (CommonRepresentation, error) {
 	if resourceId.UUID() == uuid.Nil {
 		return CommonRepresentation{}, fmt.Errorf("%w: ResourceId", ErrInvalidUUID)
@@ -48,6 +50,7 @@ func NewCommonRepresentation(
 		resourceId:     resourceId,
 		version:        version,
 		reporter:       reporter,
+		toBeDetermined: toBeDetermined,
 	}, nil
 }
 
@@ -66,6 +69,7 @@ func (cr CommonRepresentation) Serialize() CommonRepresentationSnapshot {
 		Version:                    cr.version.Serialize(),
 		ReportedByReporterType:     reporterType,
 		ReportedByReporterInstance: reporterInstanceId,
+		ToBeDetermined:             cr.toBeDetermined.Serialize(),
 		CreatedAt:                  time.Now(), // TODO: Add proper timestamp from domain entity if available
 	}
 }
@@ -77,6 +81,7 @@ func DeserializeCommonRepresentation(snapshot *CommonRepresentationSnapshot) Com
 	version := DeserializeVersion(snapshot.Version)
 	reporterType := ReporterType(snapshot.ReportedByReporterType)
 	reporterInstanceId := ReporterInstanceId(snapshot.ReportedByReporterInstance)
+	toBeDetermined := ToBeDetermined(snapshot.ToBeDetermined)
 
 	// Create reporter ID
 	reporterId := ReporterId{
@@ -89,6 +94,7 @@ func DeserializeCommonRepresentation(snapshot *CommonRepresentationSnapshot) Com
 		resourceId:     resourceId,
 		version:        version,
 		reporter:       reporterId,
+		toBeDetermined: toBeDetermined,
 	}
 }
 

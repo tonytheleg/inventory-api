@@ -115,7 +115,7 @@ func (f *fakeResourceRepository) FindResourceByKeys(tx *gorm.DB, key bizmodel.Re
 			// If search key has reporterInstanceId, it must match exactly
 			if searchReporterInstanceId == "" || strings.EqualFold(stored.reporterInstanceID, searchReporterInstanceId) {
 				placeholderData := map[string]interface{}{"_placeholder": true}
-				resource, err := bizmodel.NewResource(bizmodel.ResourceId(stored.resourceID), bizmodel.LocalResourceId(stored.localResourceID), bizmodel.ResourceType(stored.resourceType), bizmodel.ReporterType(stored.reporterType), bizmodel.ReporterInstanceId(stored.reporterInstanceID), bizmodel.ReporterResourceId(stored.reporterResourceID), bizmodel.ApiHref(""), bizmodel.ConsoleHref(""), bizmodel.Representation(placeholderData), bizmodel.Representation(placeholderData), nil)
+				resource, err := bizmodel.NewResource(bizmodel.ResourceId(stored.resourceID), bizmodel.LocalResourceId(stored.localResourceID), bizmodel.ResourceType(stored.resourceType), bizmodel.ReporterType(stored.reporterType), bizmodel.ReporterInstanceId(stored.reporterInstanceID), bizmodel.ReporterResourceId(stored.reporterResourceID), bizmodel.ApiHref(""), bizmodel.ConsoleHref(""), bizmodel.NewToBeDetermined(""), bizmodel.Representation(placeholderData), bizmodel.Representation(placeholderData), nil)
 				if err != nil {
 					return nil, fmt.Errorf("failed to create resource: %w", err)
 				}

@@ -287,6 +287,18 @@ func (uc *Usecase) createResource(tx *gorm.DB, request *v1beta2.ReportResourceRe
 		}
 	}
 
+	var toBeDetermined model.ToBeDetermined
+	if toBeDeterminedVal := request.GetRepresentations().GetMetadata().GetToBeDetermined(); toBeDeterminedVal != "" {
+		toBeDetermined = model.ToBeDetermined(toBeDeterminedVal)
+	} else {
+		// temp to just add a value for now
+		id, err := model.GenerateToBeDetermined()
+		if err != nil {
+			return fmt.Errorf("failed to generate ToBeDetermined value: %w", err)
+		}
+		toBeDetermined = model.ToBeDetermined(id)
+	}
+
 	reporterRepresentation, err := model.NewRepresentation(request.GetRepresentations().GetReporter().AsMap())
 	if err != nil {
 		return fmt.Errorf("invalid reporter representation: %w", err)
@@ -297,7 +309,7 @@ func (uc *Usecase) createResource(tx *gorm.DB, request *v1beta2.ReportResourceRe
 		return fmt.Errorf("invalid common representation: %w", err)
 	}
 
-	resource, err := model.NewResource(resourceId, localResourceId, resourceType, reporterType, reporterInstanceId, reporterResourceId, apiHref, consoleHref, reporterRepresentation, commonRepresentation, nil)
+	resource, err := model.NewResource(resourceId, localResourceId, resourceType, reporterType, reporterInstanceId, reporterResourceId, apiHref, consoleHref, toBeDetermined, reporterRepresentation, commonRepresentation, nil)
 	if err != nil {
 		return err
 	}
@@ -335,7 +347,7 @@ func getReporterResourceKeyFromRequest(request *v1beta2.ReportResourceRequest) (
 }
 
 func (uc *Usecase) updateResource(tx *gorm.DB, request *v1beta2.ReportResourceRequest, existingResource *model.Resource, txidStr string) error {
-	reporterResourceKey, apiHref, consoleHref, reporterVersion, commonData, reporterData, err := extractUpdateDataFromRequest(request)
+	reporterResourceKey, apiHref, consoleHref, toBeDetermined, reporterVersion, commonData, reporterData, err := extractUpdateDataFromRequest(request)
 	if err != nil {
 		return err
 	}
@@ -344,6 +356,7 @@ func (uc *Usecase) updateResource(tx *gorm.DB, request *v1beta2.ReportResourceRe
 		reporterResourceKey,
 		apiHref,
 		consoleHref,
+		toBeDetermined,
 		reporterVersion,
 		reporterData,
 		commonData,
@@ -359,6 +372,7 @@ func extractUpdateDataFromRequest(request *v1beta2.ReportResourceRequest) (
 	model.ReporterResourceKey,
 	model.ApiHref,
 	model.ConsoleHref,
+	model.ToBeDetermined,
 	*model.ReporterVersion,
 	model.Representation,
 	model.Representation,
@@ -366,42 +380,54 @@ func extractUpdateDataFromRequest(request *v1beta2.ReportResourceRequest) (
 ) {
 	reporterResourceKey, err := getReporterResourceKeyFromRequest(request)
 	if err != nil {
-		return model.ReporterResourceKey{}, "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("failed to create reporter resource key: %w", err)
+		return model.ReporterResourceKey{}, "", "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("failed to create reporter resource key: %w", err)
 	}
 
 	apiHref, err := model.NewApiHref(request.GetRepresentations().GetMetadata().GetApiHref())
 	if err != nil {
-		return model.ReporterResourceKey{}, "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("invalid API href: %w", err)
+		return model.ReporterResourceKey{}, "", "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("invalid API href: %w", err)
 	}
 
 	var consoleHref model.ConsoleHref
 	if consoleHrefVal := request.GetRepresentations().GetMetadata().GetConsoleHref(); consoleHrefVal != "" {
 		consoleHref, err = model.NewConsoleHref(consoleHrefVal)
 		if err != nil {
-			return model.ReporterResourceKey{}, "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("invalid console href: %w", err)
+			return model.ReporterResourceKey{}, "", "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("invalid console href: %w", err)
 		}
+	}
+
+	var toBeDetermined model.ToBeDetermined
+	if toBeDeterminedVal := request.GetRepresentations().GetMetadata().GetToBeDetermined(); toBeDeterminedVal != "" {
+		toBeDetermined = model.ToBeDetermined(toBeDeterminedVal)
+	} else {
+		// temp to just add a value for now
+		id, err := model.GenerateToBeDetermined()
+		if err != nil {
+			return model.ReporterResourceKey{}, "", "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("failed to generate ToBeDetermined value: %w", err)
+		}
+		toBeDetermined = model.ToBeDetermined(id)
 	}
 
 	var reporterVersion *model.ReporterVersion
 	if reporterVersionValue := request.GetRepresentations().GetMetadata().GetReporterVersion(); reporterVersionValue != "" {
 		rv, err := model.NewReporterVersion(reporterVersionValue)
 		if err != nil {
-			return model.ReporterResourceKey{}, "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("invalid reporter version: %w", err)
+			return model.ReporterResourceKey{}, "", "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("invalid reporter version: %w", err)
 		}
 		reporterVersion = &rv
 	}
 
 	commonRepresentation, err := model.NewRepresentation(request.GetRepresentations().GetCommon().AsMap())
 	if err != nil {
-		return model.ReporterResourceKey{}, "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("invalid common data: %w", err)
+		return model.ReporterResourceKey{}, "", "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("invalid common data: %w", err)
 	}
 
 	reporterRepresentation, err := model.NewRepresentation(request.GetRepresentations().GetReporter().AsMap())
 	if err != nil {
-		return model.ReporterResourceKey{}, "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("invalid reporter data: %w", err)
+		return model.ReporterResourceKey{}, "", "", "", nil, model.Representation(nil), model.Representation(nil), fmt.Errorf("invalid reporter data: %w", err)
 	}
 
-	return reporterResourceKey, apiHref, consoleHref, reporterVersion, commonRepresentation, reporterRepresentation, nil
+	return reporterResourceKey, apiHref, consoleHref, toBeDetermined, reporterVersion, commonRepresentation, reporterRepresentation, nil
 }
 
 func getNextTransactionID() (string, error) {
