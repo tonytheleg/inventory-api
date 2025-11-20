@@ -18,7 +18,7 @@ objects:
             insecure-client: true
             enable-oidc-auth: false
         consumer:
-          enabled: true
+          enabled: false
           topic: outbox.event.kessel.tuples
           retry-options:
             consumer-max-retries: -1
@@ -300,16 +300,19 @@ objects:
         database.user: ${secrets:kessel-inventory-db:db.user}
         database.password: ${secrets:kessel-inventory-db:db.password}
         topic.prefix: kessel-inventory
-        table.include.list: public.outbox_events
+        table.include.list: public.outbox_events,public.debezium_heartbeats
         transforms: outbox
+        transforms.outbox.predicate: IsOutboxTable
         transforms.outbox.type: io.debezium.transforms.outbox.EventRouter
-        transforms.outbox.table.fields.additional.placement: operation:header, txid:header
-        transforms.outbox.table.expand.json.payload: true
+        predicates: IsOutboxTable
+        predicates.IsOutboxTable.type: org.apache.kafka.connect.transforms.predicates.TopicNameMatches
+        predicates.IsOutboxTable.pattern: "outbox.event.kessel.tuples"
+        predicates.IsOutboxTable.table.fields.additional.placement: operation:header, txid:header
+        predicates.IsOutboxTable.table.expand.json.payload: true
         value.converter: org.apache.kafka.connect.json.JsonConverter
         plugin.name: pgoutput
         heartbeat.interval.ms: ${DEBEZIUM_HEARTBEAT_INTERVAL_MS}
         heartbeat.action.query: ${DEBEZIUM_ACTION_QUERY}
-        topic.heartbeat.prefix: ${TOPIC_HEARTBEAT_PREFIX}
         poll.interval.ms: ${DEBEZIUM_POLL_INTERVAL_MS}
   - apiVersion: cloud.redhat.com/v1alpha1
     kind: ClowdApp
@@ -419,7 +422,7 @@ parameters:
     value: debezium-heartbeat
     description: Prefix for the connector heartbeat topic
   - name: DEBEZIUM_ACTION_QUERY
-    value: "SELECT pg_logical_emit_message(false, 'heartbeat', now()::varchar);"
+    value: "INSERT INTO public.debezium_heartbeats (id, ts) VALUES (1, now()) ON CONFLICT (id) DO UPDATE SET ts = excluded.ts;"
     description: Query action that runs for each heartbeat event
   - name: DEBEZIUM_HEARTBEAT_INTERVAL_MS
     value: "300000"

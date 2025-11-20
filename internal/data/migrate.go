@@ -19,6 +19,7 @@ func Migrate(db *gorm.DB, logger *log.Helper) error {
 		&model.CommonRepresentation{},
 		&model.ReporterResource{},
 		&model.Resource{},
+		&model.DebeziumHeartbeat{},
 	}
 
 	if err := db.AutoMigrate(models...); err != nil {
