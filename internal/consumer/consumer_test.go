@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/project-kessel/inventory-api/internal/biz/model"
+	model_legacy "github.com/project-kessel/inventory-api/internal/biz/model_legacy"
 	"github.com/project-kessel/inventory-api/internal/data"
 	datamodel "github.com/project-kessel/inventory-api/internal/data/model"
 	"github.com/project-kessel/inventory-api/internal/mocks"
@@ -38,6 +39,14 @@ const (
 )
 
 func setupInMemoryDB(t *testing.T) *gorm.DB {
+	// Replace PublishOutboxEvent with a no-op for SQLite tests since
+	// pg_logical_emit_message is a PostgreSQL-only function.
+	original := data.PublishOutboxEvent
+	data.PublishOutboxEvent = func(tx *gorm.DB, event *model_legacy.OutboxEvent) error {
+		return nil
+	}
+	t.Cleanup(func() { data.PublishOutboxEvent = original })
+
 	db := testutil.NewSQLiteTestDB(t, &gorm.Config{})
 	err := data.Migrate(db, nil)
 	require.NoError(t, err)

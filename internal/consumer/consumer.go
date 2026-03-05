@@ -160,6 +160,16 @@ type MessagePayload struct {
 	RelationsRequest interface{}            `json:"payload"`
 }
 
+// WALMessagePayload stores the event message value from a logical decoding WAL message.
+// After DecodeLogicalDecodingMessageContent SMT and HeaderFrom extraction, the value
+// contains the outbox fields directly (no Debezium envelope).
+type WALMessagePayload struct {
+	ID            string      `json:"id"`
+	AggregateType string      `json:"aggregatetype"`
+	AggregateID   string      `json:"aggregateid"`
+	Payload       interface{} `json:"payload"`
+}
+
 // Consume begins the consumption loop for the Consumer
 func (i *InventoryConsumer) Consume() error {
 	err := i.Consumer.SubscribeTopics([]string{i.Config.Topic}, i.RebalanceCallback)
@@ -224,6 +234,13 @@ func (i *InventoryConsumer) Consume() error {
 						metricscollector.Incr(i.MetricsCollector.MsgProcessFailures, "ParseMessageKey")
 						i.Logger.Errorf("failed to parse message key for for ID: %v", err)
 					}
+
+					// If key is empty (WAL logical decoding messages don't set a key),
+					// fall back to extracting aggregateid from the message value
+					if inventoryID == "" {
+						inventoryID = ParseAggregateIDFromValue(e.Value)
+					}
+
 					err = i.UpdateConsistencyTokenIfPresent(inventoryID, fmt.Sprint(resp))
 					if err != nil {
 						i.Logger.Errorf("failed to update consistency token: %v", err)
@@ -427,15 +444,33 @@ func ParseHeaders(msg *kafka.Message) (map[string]string, error) {
 }
 
 func ParseMessage(msg []byte, operationType string) (*model.TupleEvent, error) {
-	var msgPayload *MessagePayload
+	// Try to extract the payload from the message value.
+	// Supports two formats:
+	// 1. Debezium envelope format (outbox table): {"schema": {...}, "payload": {...}}
+	// 2. WAL logical decoding format: {"id": "...", "aggregatetype": "...", "payload": {...}}
+	var payload interface{}
 
-	// msg value is expected to be a valid JSON body for a single relation
+	// First try the Debezium envelope format
+	var msgPayload *MessagePayload
 	err := json.Unmarshal(msg, &msgPayload)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling msgPayload: %v", err)
 	}
 
-	payloadJson, err := json.Marshal(msgPayload.RelationsRequest)
+	if msgPayload.RelationsRequest != nil {
+		// Debezium envelope format - payload is in the "payload" field
+		payload = msgPayload.RelationsRequest
+	} else {
+		// Try WAL message format - payload is in the "payload" field alongside other outbox fields
+		var walPayload *WALMessagePayload
+		err = json.Unmarshal(msg, &walPayload)
+		if err != nil {
+			return nil, fmt.Errorf("error unmarshaling WAL message payload: %v", err)
+		}
+		payload = walPayload.Payload
+	}
+
+	payloadJson, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("error marshaling tuple payload: %v", err)
 	}
@@ -450,6 +485,12 @@ func ParseMessage(msg []byte, operationType string) (*model.TupleEvent, error) {
 }
 
 func ParseMessageKey(msg []byte) (string, error) {
+	// If the key is nil or empty (e.g., from WAL logical decoding messages),
+	// return empty string. The caller handles this gracefully.
+	if len(msg) == 0 {
+		return "", nil
+	}
+
 	var msgPayload *KeyPayload
 
 	// msg key is expected to be the inventory_id of a resource
@@ -458,6 +499,19 @@ func ParseMessageKey(msg []byte) (string, error) {
 		return "", fmt.Errorf("error unmarshaling msgPayload: %v", err)
 	}
 	return msgPayload.InventoryID, nil
+}
+
+// ParseAggregateIDFromValue extracts the aggregateid from a WAL logical decoding message value.
+// This is used as a fallback when the Kafka message key is not set.
+func ParseAggregateIDFromValue(msg []byte) string {
+	if len(msg) == 0 {
+		return ""
+	}
+	var walPayload WALMessagePayload
+	if err := json.Unmarshal(msg, &walPayload); err != nil {
+		return ""
+	}
+	return walPayload.AggregateID
 }
 
 // checkIfCommit returns true whenever the condition to commit a batch of offsets is met
