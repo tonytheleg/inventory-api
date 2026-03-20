@@ -1,6 +1,8 @@
 package jobs
 
 import (
+	"context"
+
 	"github.com/project-kessel/inventory-api/cmd/common"
 	"github.com/project-kessel/inventory-api/internal/storage"
 	"github.com/spf13/cobra"
@@ -18,6 +20,7 @@ func NewRunJobCommand(storageOptions *storage.Options, loggerOptions common.Logg
 
 	cmds := []*cobra.Command{
 		NewResourceDeleteJobCommand(storageOptions, loggerOptions),
+		NewCollectBizMetricsJobCommand(storageOptions, loggerOptions, context.Background()),
 	}
 
 	for _, c := range cmds {
