@@ -189,6 +189,7 @@ services:
     restart: "on-failure"
     environment:
       - "KEYCLOAK_ADMIN=admin"
+      # Development-only Keycloak credential.
       - "KEYCLOAK_ADMIN_PASSWORD=admin"
     volumes:
       - ./configs/myrealm.json:/opt/keycloak/data/import/myrealm.json:rw,z

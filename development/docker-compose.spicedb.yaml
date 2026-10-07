@@ -44,6 +44,7 @@ services:
     ports:
       - "50051:50051"
     environment:
+      # Development-only SpiceDB credential.
       - "SPICEDB_GRPC_PRESHARED_KEY=foobar"
       - "SPICEDB_DATASTORE_ENGINE=postgres"
       - "SPICEDB_DATASTORE_CONN_URI=postgres://postgres:yPsw5e6ab4bvAGe5H@spicedb-database:5432/spicedb?sslmode=disable"

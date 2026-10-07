@@ -5,14 +5,15 @@
   paths = [
     # Ignore all example certs
     '''\/example.*\.pem$''',
-                
+
     # Ignore anything with the word funkymonkey anywhere in the path
+    # The following values are development-only fixture credentials.
     '''foobar''','''yPsw5e6ab4bvAGe5H''','''h91qw8bPiDj9R6VSORsI5TYbceGU5PMH''',
 
     # Ignore some long path
     '''examples\/some\/long\/path\/server.key$''',
   ]
-        
+
   # Ignore based on any subset of the line
   regexes = [
     # Ignore lines containing pickles

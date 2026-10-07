@@ -38,6 +38,7 @@ SCHEMA_VERSION=v20260929.1
 DB_PORT ?= 5435
 DB_NAME ?= inventory
 DB_USER ?= inventory_api
+# Development-only database credential.
 DB_PASSWORD ?= postgres
 PG_VERSION ?= 17.8
 

@@ -18,6 +18,7 @@ storage:
     host: localhost
     port: 5435
     user: inventory_api
+    # Development-only database credential.
     password: postgres
     dbname: inventory
 schema:
@@ -29,5 +30,4 @@ log:
   level: "info"
   livez: true
   readyz: true
-
 

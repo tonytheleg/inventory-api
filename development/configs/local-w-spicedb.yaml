@@ -11,6 +11,7 @@ authz:
   impl: spicedb
   spicedb:
     endpoint: spicedb:50051
+    # Development-only SpiceDB credential.
     token: foobar
     schema-file: /schema.zed
     use-tls: false
@@ -26,6 +27,7 @@ storage:
     host: "invdatabase"
     port: "5433"
     user: "postgres"
+    # Development-only database credential.
     password: "yPsw5e6ab4bvAGe5H"
     dbname: "spicedb"
 schema:

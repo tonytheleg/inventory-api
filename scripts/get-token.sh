@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Development-only Keycloak credential.
 RESULT=`curl -k --data "grant_type=client_credentials&client_id=svc-test&client_secret=h91qw8bPiDj9R6VSORsI5TYbceGU5PMH" http://localhost:8084/realms/redhat-external/protocol/openid-connect/token`
 
 if command -v jq > /dev/null 2>&1; then

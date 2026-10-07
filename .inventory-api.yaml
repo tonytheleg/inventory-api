@@ -67,6 +67,7 @@ storage:
     host: localhost
     port: 5435
     user: inventory_api
+    # Development-only database credential.
     password: postgres
     dbname: inventory
   sqlite3:
