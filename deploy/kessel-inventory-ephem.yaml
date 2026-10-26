@@ -1,5 +1,3 @@
-# DEVELOPMENT ONLY — DO NOT USE IN PRODUCTION.
-# This configuration disables or weakens authentication, TLS, or related security controls.
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
@@ -83,7 +81,7 @@ objects:
     metadata:
       name: resources-tarball
     binaryData:
-      resources.tar.gz: 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
+      resources.tar.gz: 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
   - apiVersion: cloud.redhat.com/v1alpha1
     kind: ClowdApp
     metadata:
@@ -107,11 +105,6 @@ objects:
         - name: api
           replicas: ${{REPLICAS}}
           podSpec:
-            securityContext:
-              runAsNonRoot: true
-              fsGroup: 1001
-              seccompProfile:
-                type: RuntimeDefault
             initContainers:
               - name: fetch-spicedb-schema
                 image: ${SCHEMA_INIT_IMAGE}
@@ -121,20 +114,6 @@ objects:
                   - |
                     curl -sSfL -o /etc/spicedb-schema/schema.zed \
                       "https://raw.githubusercontent.com/${SPICEDB_SCHEMA_REPO}/${SPICEDB_SCHEMA_REF}/${SPICEDB_SCHEMA_PATH}"
-                securityContext:
-                  runAsNonRoot: true
-                  allowPrivilegeEscalation: false
-                  readOnlyRootFilesystem: true
-                  capabilities:
-                    drop:
-                      - ALL
-                resources:
-                  requests:
-                    cpu: 10m
-                    memory: 32Mi
-                  limits:
-                    cpu: 100m
-                    memory: 128Mi
                 inheritEnv: false
                 volumeMounts:
                   - name: spicedb-schema
@@ -142,28 +121,12 @@ objects:
               - name: copy-resources
                 image: registry.access.redhat.com/ubi9
                 imagePullPolicy: Always
-                securityContext:
-                  runAsUser: 1001
-                  runAsGroup: 1001
-                  runAsNonRoot: true
-                  allowPrivilegeEscalation: false
-                  readOnlyRootFilesystem: true
-                  capabilities:
-                    drop:
-                      - ALL
-                resources:
-                  requests:
-                    cpu: 10m
-                    memory: 32Mi
-                  limits:
-                    cpu: 100m
-                    memory: 128Mi
                 command:
                   - /bin/sh
                   - "-c"
                   - |
                     echo "Extracting resources from tarball..."
-                     tar --no-same-owner --no-same-permissions --no-overwrite-dir --touch -xzf /mnt/resources/resources.tar.gz -C /data/schema/resources
+                    tar -xzf /mnt/resources/resources.tar.gz -C /data/schema/resources
                     echo "Extraction complete!"
                 volumeMounts:
                   - name: resources-tarball
@@ -173,38 +136,11 @@ objects:
               - name: migration
                 image: ${INVENTORY_IMAGE}:${IMAGE_TAG}
                 imagePullPolicy: Always
-                securityContext:
-                  runAsNonRoot: true
-                  allowPrivilegeEscalation: false
-                  readOnlyRootFilesystem: true
-                  capabilities:
-                    drop:
-                      - ALL
-                resources:
-                  requests:
-                    cpu: 100m
-                    memory: 256Mi
-                  limits:
-                    cpu: 500m
-                    memory: 1Gi
                 command: ["inventory-api"]
-                args: ["migrate", "--enabled=${MIGRATIONS_ENABLED}"]
+                args: ["migrate"]
                 inheritEnv: true
             image: ${INVENTORY_IMAGE}:${IMAGE_TAG}
             imagePullPolicy: Always
-            containerSecurityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - ALL
-            resources:
-              requests:
-                cpu: 250m
-                memory: 512Mi
-              limits:
-                cpu: 500m
-                memory: 1Gi
             command: ["inventory-api"]
             args: ["serve"]
             livenessProbe:
@@ -286,21 +222,10 @@ objects:
                 job-type: metrics-collect
             spec:
               restartPolicy: OnFailure
-              securityContext:
-                runAsNonRoot: true
-                seccompProfile:
-                  type: RuntimeDefault
               containers:
                 - name: metrics-collect
                   image: ${INVENTORY_IMAGE}:${IMAGE_TAG}
                   imagePullPolicy: Always
-                  securityContext:
-                    runAsNonRoot: true
-                    allowPrivilegeEscalation: false
-                    readOnlyRootFilesystem: true
-                    capabilities:
-                      drop:
-                        - ALL
                   command:
                     - inventory-api
                     - run-job
@@ -373,9 +298,6 @@ parameters:
   - description: Number of replicas
     name: REPLICAS
     value: "1"
-  - description: Apply database migrations from this namespace. Set to true in exactly one namespace for deployments that share a database.
-    name: MIGRATIONS_ENABLED
-    value: "true"
   - name: TOPIC_HEARTBEAT_PREFIX
     value: debezium-heartbeat
     description: Prefix for the connector heartbeat topic

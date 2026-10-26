@@ -3,7 +3,8 @@
   "additionalProperties": false,
   "properties": {
     "desire_all_services": {
-      "type": "boolean"
+      "pattern": "^features/service:\\*$",
+      "type": "string"
     },
     "direct_billing_account": {
       "format": "uuid",
@@ -17,10 +18,12 @@
       "type": "array"
     },
     "ignore_inherited_desired_services": {
-      "type": "boolean"
+      "pattern": "^features/service:\\*$",
+      "type": "string"
     },
     "ignore_inherited_paid_services": {
-      "type": "boolean"
+      "pattern": "^features/service:\\*$",
+      "type": "string"
     }
   },
   "required": [],
