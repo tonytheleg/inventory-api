@@ -4,6 +4,11 @@ server:
   grpc:
     address: 0.0.0.0:9081
 authn:
+  # Dev-only: makes the deprecated legacy tuple service (used by the RBAC
+  # kafka consumer for fencing locks) permissive. The whitelist meta-authorizer
+  # denies its unauthenticated AcquireLock/CreateTuples calls otherwise.
+  # The authenticator chain below still governs actual authentication.
+  allow-unauthenticated: true
   authenticator:
     type: first_match
     chain:
