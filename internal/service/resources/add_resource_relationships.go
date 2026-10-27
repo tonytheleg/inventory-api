@@ -6,7 +6,7 @@ import (
 
 	pb "github.com/project-kessel/inventory-api/api/kessel/inventory/v1beta2"
 	"github.com/project-kessel/inventory-api/internal/biz/model"
-	addusecase "github.com/project-kessel/inventory-api/internal/biz/usecase"
+	relationsusecase "github.com/project-kessel/inventory-api/internal/biz/usecase"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -31,35 +31,35 @@ func (s *InventoryService) AddResourceRelationships(ctx context.Context, r *pb.A
 
 // toAddResourceRelationshipsCommand converts a protobuf AddResourceRelationshipsRequest
 // to the domain AddResourceRelationshipsCommand used by the usecase layer.
-func toAddResourceRelationshipsCommand(r *pb.AddResourceRelationshipsRequest) (addusecase.AddResourceRelationshipsCommand, error) {
+func toAddResourceRelationshipsCommand(r *pb.AddResourceRelationshipsRequest) (relationsusecase.AddResourceRelationshipsCommand, error) {
 	localResourceId, err := model.NewLocalResourceId(r.GetLocalResourceId())
 	if err != nil {
-		return addusecase.AddResourceRelationshipsCommand{}, fmt.Errorf("invalid local resource ID: %w", err)
+		return relationsusecase.AddResourceRelationshipsCommand{}, fmt.Errorf("invalid local resource ID: %w", err)
 	}
 
 	resourceType, err := model.NewResourceType(r.GetType())
 	if err != nil {
-		return addusecase.AddResourceRelationshipsCommand{}, fmt.Errorf("invalid resource type: %w", err)
+		return relationsusecase.AddResourceRelationshipsCommand{}, fmt.Errorf("invalid resource type: %w", err)
 	}
 
 	reporterType, err := model.NewReporterType(r.GetReporterType())
 	if err != nil {
-		return addusecase.AddResourceRelationshipsCommand{}, fmt.Errorf("invalid reporter type: %w", err)
+		return relationsusecase.AddResourceRelationshipsCommand{}, fmt.Errorf("invalid reporter type: %w", err)
 	}
 
 	reporterInstanceId, err := model.NewReporterInstanceId(r.GetReporterInstanceId())
 	if err != nil {
-		return addusecase.AddResourceRelationshipsCommand{}, fmt.Errorf("invalid reporter instance ID: %w", err)
+		return relationsusecase.AddResourceRelationshipsCommand{}, fmt.Errorf("invalid reporter instance ID: %w", err)
 	}
 
 	reporterRepresentation, err := representationFromProtoStruct(r.GetReporter(), "reporter")
 	if err != nil {
-		return addusecase.AddResourceRelationshipsCommand{}, err
+		return relationsusecase.AddResourceRelationshipsCommand{}, err
 	}
 
 	commonRepresentation, err := representationFromProtoStruct(r.GetCommon(), "common")
 	if err != nil {
-		return addusecase.AddResourceRelationshipsCommand{}, err
+		return relationsusecase.AddResourceRelationshipsCommand{}, err
 	}
 
 	var transactionId *model.TransactionId
@@ -68,7 +68,7 @@ func toAddResourceRelationshipsCommand(r *pb.AddResourceRelationshipsRequest) (a
 		transactionId = &txId
 	}
 
-	return addusecase.AddResourceRelationshipsCommand{
+	return relationsusecase.AddResourceRelationshipsCommand{
 		LocalResourceId:        localResourceId,
 		ResourceType:           resourceType,
 		ReporterType:           reporterType,
