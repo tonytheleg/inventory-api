@@ -19,6 +19,7 @@ import (
 
 	"github.com/project-kessel/inventory-api/cmd/common"
 	bizmodel "github.com/project-kessel/inventory-api/internal/biz/model"
+	removeusecase "github.com/project-kessel/inventory-api/internal/biz/usecase"
 	"github.com/project-kessel/inventory-api/internal/biz/usecase/metaauthorizer"
 	resourcesctl "github.com/project-kessel/inventory-api/internal/biz/usecase/resources"
 	tuplesctl "github.com/project-kessel/inventory-api/internal/biz/usecase/tuples"
@@ -304,7 +305,18 @@ func NewCommand(
 			resourceRepo := data.NewResourceRepository(db, transactionManager, data.SetOutboxPublisher(storageConfig.Options.OutboxMode))
 			inventory_controller := resourcesctl.New(resourceRepo, schemaRepository, relationsRepo, "notifications", log.With(logger, "subsystem", "notificationsintegrations_controller"), listenManager, waitForNotifCircuitBreaker, usecaseConfig, mc, metaauthorizer.NewSimpleMetaAuthorizer(), selfSubjectStrategy)
 
-			inventory_service := resourcesvc.NewKesselInventoryServiceV1beta2(inventory_controller)
+			remove_relationships_controller := removeusecase.NewRemoveResourceRelationshipsUseCase(
+				resourceRepo,
+				schemaRepository,
+				listenManager,
+				waitForNotifCircuitBreaker,
+				usecaseConfig,
+				mc,
+				metaauthorizer.NewSimpleMetaAuthorizer(),
+				logger,
+			)
+
+			inventory_service := resourcesvc.NewKesselInventoryServiceV1beta2(inventory_controller, remove_relationships_controller)
 			pbv1beta2.RegisterKesselInventoryServiceServer(server.GrpcServer, inventory_service)
 			pbv1beta2.RegisterKesselInventoryServiceHTTPServer(server.HttpServer, inventory_service)
 
