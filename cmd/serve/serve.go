@@ -18,6 +18,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/project-kessel/inventory-api/cmd/common"
+	addusecase "github.com/project-kessel/inventory-api/internal/biz/usecase"
 	bizmodel "github.com/project-kessel/inventory-api/internal/biz/model"
 	"github.com/project-kessel/inventory-api/internal/biz/usecase/metaauthorizer"
 	resourcesctl "github.com/project-kessel/inventory-api/internal/biz/usecase/resources"
@@ -304,7 +305,18 @@ func NewCommand(
 			resourceRepo := data.NewResourceRepository(db, transactionManager, data.SetOutboxPublisher(storageConfig.Options.OutboxMode))
 			inventory_controller := resourcesctl.New(resourceRepo, schemaRepository, relationsRepo, "notifications", log.With(logger, "subsystem", "notificationsintegrations_controller"), listenManager, waitForNotifCircuitBreaker, usecaseConfig, mc, metaauthorizer.NewSimpleMetaAuthorizer(), selfSubjectStrategy)
 
-			inventory_service := resourcesvc.NewKesselInventoryServiceV1beta2(inventory_controller)
+			add_relationships_controller := addusecase.NewAddResourceRelationshipsUseCase(
+				resourceRepo,
+				schemaRepository,
+				listenManager,
+				waitForNotifCircuitBreaker,
+				usecaseConfig,
+				mc,
+				metaauthorizer.NewSimpleMetaAuthorizer(),
+				logger,
+			)
+
+			inventory_service := resourcesvc.NewKesselInventoryServiceV1beta2(inventory_controller, add_relationships_controller)
 			pbv1beta2.RegisterKesselInventoryServiceServer(server.GrpcServer, inventory_service)
 			pbv1beta2.RegisterKesselInventoryServiceHTTPServer(server.HttpServer, inventory_service)
 
