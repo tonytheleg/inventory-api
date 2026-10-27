@@ -2,6 +2,7 @@
 # This configuration disables or weakens authentication, TLS, or related security controls.
 consumer:
   bootstrap-servers: ["kafka:9093"]
+  load_reporter_representation: true
   commit-modulo: 300
   topics:
   - outbox.event.hbi.hosts

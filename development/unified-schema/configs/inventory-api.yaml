@@ -52,6 +52,7 @@ schema:
 consumer:
   enabled: true
   bootstrap-servers: kafka:9093
+  load_reporter_representation: true
   retry-options:
     consumer-max-retries: 3
     operation-max-retries: 4

@@ -5,6 +5,7 @@
 | Make Target | What It Starts | Use Case |
 |---|---|---|
 | `make kessel-up` | Full Kessel suite (all services, pre-built images) | Most common -- test the full stack |
+| `make kessel-up-unified` | Full Kessel suite with unified YAML schemas (`development/unified-schema`) | Test the full stack in unified schema mode |
 | `make kessel-compose-integration-test` | Runs integration tests against running stack | Verify all services integrate correctly |
 | `make test-performance` | Runs resource lifecycle performance tests and prints a summary; auto-detects Docker/Podman (must be running) | Measure resource lifecycle performance |
 | `make kessel-up-monitoring` | Full Kessel + Prometheus/Grafana/Alertmanager | Metrics and dashboard development |
