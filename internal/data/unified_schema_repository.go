@@ -49,10 +49,17 @@ func NewInMemorySchemaRepositoryFromUnifiedYAMLDir(ctx context.Context, dir stri
 
 			var reporterSchema model.Schema
 			if reporter.Schema != nil {
+				// The reporter instance carries its own relations so the
+				// reporter-aware SchemaService (which fetches reporter schemas
+				// and filters representations to reporter-only data) can
+				// calculate reporter relations. The common instance above
+				// retains the combined map for the common-only service path.
 				reporterSchema = NewUnifiedSchemaImpl(
 					reporter.Schema,
 					nil,
-					nil,
+					map[string][]UnifiedSchemaRelation{
+						reporterType.String(): reporter.Relations,
+					},
 				)
 			}
 
