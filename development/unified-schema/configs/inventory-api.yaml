@@ -4,9 +4,11 @@ server:
   grpc:
     address: 0.0.0.0:9081
 authn:
-  # Dev-only: makes the deprecated legacy tuple service (used by the RBAC
-  # kafka consumer for fencing locks) permissive. The whitelist meta-authorizer
-  # denies its unauthenticated AcquireLock/CreateTuples calls otherwise.
+  # Dev-only: the start-full-kessel.sh script injects allow-unauthenticated
+  # into a generated config for the JSON-mode stack, but the unified override
+  # mounts this raw config directly, bypassing that injection. Without this
+  # flag the whitelist meta-authorizer denies the RBAC kafka consumer's
+  # unauthenticated fencing-lock calls on the deprecated tuple service.
   # The authenticator chain below still governs actual authentication.
   allow-unauthenticated: true
   authenticator:
