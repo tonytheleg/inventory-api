@@ -149,6 +149,24 @@ func TestOptions_Validate(t *testing.T) {
 	}
 }
 
+func TestLoadReporterRepresentationConfigKey(t *testing.T) {
+	options := NewOptions()
+	flags := pflag.NewFlagSet("consumer", pflag.ContinueOnError)
+	options.AddFlags(flags, "consumer")
+	require.NotNil(t, flags.Lookup("consumer.load-reporter-representation"), "CLI flag must follow the kebab-case convention")
+
+	config := viper.New()
+	require.NoError(t, config.BindPFlags(flags))
+	config.SetConfigType("yaml")
+	require.NoError(t, config.ReadConfig(strings.NewReader("consumer:\n  load-reporter-representation: true\n")))
+	decoded := struct {
+		Consumer *Options `mapstructure:"consumer"`
+	}{Consumer: options}
+	err := config.Unmarshal(&decoded)
+	require.NoError(t, err)
+	require.True(t, decoded.Consumer.LoadReporterRepresentation, "kebab-case config key must be honored")
+}
+
 func TestLoadReporterRepresentationEnvironmentOverride(t *testing.T) {
 	t.Setenv("INVENTORY_API_CONSUMER_LOAD_REPORTER_REPRESENTATION", "true")
 	options := NewOptions()
@@ -156,12 +174,12 @@ func TestLoadReporterRepresentationEnvironmentOverride(t *testing.T) {
 	options.AddFlags(flags, "consumer")
 	config := viper.New()
 	require.NoError(t, config.BindPFlags(flags))
-	// Match the application's environment mapping, which replaces only dots.
+	// Match the application's environment mapping, which replaces dots and hyphens.
 	config.SetEnvPrefix("INVENTORY_API")
-	config.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	config.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	config.AutomaticEnv()
 	config.SetConfigType("yaml")
-	require.NoError(t, config.ReadConfig(strings.NewReader("consumer:\n  load_reporter_representation: false\n")))
+	require.NoError(t, config.ReadConfig(strings.NewReader("consumer:\n  load-reporter-representation: false\n")))
 	decoded := struct {
 		Consumer *Options `mapstructure:"consumer"`
 	}{Consumer: options}

@@ -321,7 +321,12 @@ func (r *resourceRepository) FindCurrentAndPreviousVersionedRepresentations(
 	return fetchCurrentAndPreviousRepresentations(fetcher, versions, operationType)
 }
 
-// fetchCommonRepresentation fetches a common representation at a specific version
+// fetchCommonRepresentation fetches a common representation at a specific version.
+//
+// The version predicate is a single equality match instead of an IN list so that
+// PostgreSQL can use the (resource_id, version) primary key. Current and previous
+// versions are therefore fetched with two statements; see
+// resource_repository_query_test.go for the query-shape guard.
 func (r *resourceRepository) fetchCommonRepresentation(db *gorm.DB, key bizmodel.ReporterResourceKey, version uint) (bizmodel.Representation, *bizmodel.Version, error) {
 	type commonRepresentationRow struct {
 		Data    internal.JsonObject

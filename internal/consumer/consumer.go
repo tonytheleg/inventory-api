@@ -320,7 +320,7 @@ func (i *InventoryConsumer) ProcessMessage(headers map[string]string, relationsE
 		if relationsEnabled {
 			return i.processRelationsOperation(operation, txid, msg, operationConfig{
 				fetchRepresentations: func(i *InventoryConsumer, key model.ReporterResourceKey, versions model.RepresentationVersions) (*model.Representations, *model.Representations, error) {
-					if !i.Config.LoadReporterRepresentation {
+					if !i.useReporterRepresentations(versions) {
 						previous, err := i.ResourceRepository.FindLatestCommonRepresentation(nil, key)
 						return nil, previous, err
 					}
@@ -359,6 +359,15 @@ func (i *InventoryConsumer) ProcessMessage(headers map[string]string, relationsE
 	return "", nil
 }
 
+// useReporterRepresentations reports whether an event should be processed against
+// the reporter representation stream. It requires both the feature flag and full
+// reporter coordinates on the event: events produced before reporter generations
+// existed carry no generation, and a missing generation must not be read as
+// generation zero.
+func (i *InventoryConsumer) useReporterRepresentations(versions model.RepresentationVersions) bool {
+	return i.Config.LoadReporterRepresentation && versions.HasReporterCoordinates()
+}
+
 type operationConfig struct {
 	fetchRepresentations func(i *InventoryConsumer, key model.ReporterResourceKey, versions model.RepresentationVersions) (*model.Representations, *model.Representations, error)
 	executeSpiceDB       func(i *InventoryConsumer, tuples model.TuplesToReplicate) (string, error)
@@ -383,7 +392,15 @@ func (i *InventoryConsumer) processRelationsOperation(
 
 	key := tupleEvent.ReporterResourceKey()
 	versions := model.NewRepresentationVersionsFromTupleEvent(*tupleEvent)
-	if !i.Config.LoadReporterRepresentation {
+	if !i.useReporterRepresentations(versions) {
+		// Common-only path: the feature flag is off, or the event predates reporter
+		// generations and therefore has no usable reporter coordinates.
+		if i.Config.LoadReporterRepresentation && versions.ReporterVersion() != nil {
+			// The event carries a reporter version but no generation, so it cannot be
+			// matched to reporter history. Surfaced at debug level to make legacy
+			// backlog visible during rollout.
+			i.Logger.Debugf("legacy event without reporter generation; using common-only path: operation=%s", operation)
+		}
 		// Creates and updates without a common version have no common tuples to replicate.
 		// Legacy deletes omit the common version and must still fetch the latest common data.
 		if versions.CommonVersion() == nil && operation != string(model.OperationTypeDeleted) {

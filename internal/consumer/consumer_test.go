@@ -1191,68 +1191,97 @@ func TestProcessMessage_LoadReporterRepresentationDisabled(t *testing.T) {
 	require.Empty(t, result)
 }
 
-// Test 1.4: Consumer-level test for delete with version gaps
-// Verifies that DeleteTuple receives tuples derived from the v0 reporter representation
-// even when a common-only update creates a gap at v1.
+// TestProcessMessage_LegacyEventWithoutReporterGeneration verifies that events
+// produced before reporter generations existed stay on the common-only path even
+// when reporter representation loading is enabled. A reporter version without a
+// generation cannot identify a reporter row, so it must not be read as generation
+// zero; the common representation is still replicated.
+func TestProcessMessage_LegacyEventWithoutReporterGeneration(t *testing.T) {
+	tester := TestCase{}
+	require.Nil(t, tester.TestSetup(t))
+	require.True(t, tester.inv.Config.LoadReporterRepresentation)
+
+	fixture, err := model.NewResourceFixture("legacy-no-generation", "integration", "notifications", "notif-instance-1", "workspace-v0")
+	require.NoError(t, err)
+	require.NoError(t, tester.inv.ResourceRepository.Save(tester.inv.DB, *fixture.Resource, model.OperationTypeCreated, fixture.InitialTransactionId))
+
+	// Common version present, reporter version present, generation absent.
+	msg := &kafka.Message{Value: []byte(`{"payload":{"reporter_resource_key":{"local_resource_id":"legacy-no-generation","resource_type":"integration","reporter":{"reporter_type":"notifications","reporter_instance_id":"notif-instance-1"}},"common_version":0,"reporter_representation_version":0}}`)}
+
+	result, err := tester.inv.ProcessMessage(map[string]string{"operation": string(model.OperationTypeCreated)}, true, msg)
+	require.NoError(t, err)
+	require.NotEmpty(t, result, "common tuples must still be replicated from the common representation")
+}
+
+// TestInventoryConsumer_DeleteAfterCommonOnlyUpdate_TupleCleanup verifies that
+// DeleteTuple receives tuples derived from the last live reporter representation
+// even when a common-only update leaves a gap in reporter versions.
+//
+// The test drives the real message flow: the create and common-only update events
+// are processed so their tuples exist, then the delete must remove them. A delete
+// that fails to resolve the last live reporter state deletes no tuples at all and
+// leaves the resource authorized after deletion.
 func TestInventoryConsumer_DeleteAfterCommonOnlyUpdate_TupleCleanup(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping consumer test in short mode")
+	tester := TestCase{}
+	require.Nil(t, tester.TestSetup(t))
+	require.True(t, tester.inv.Config.LoadReporterRepresentation, "test premise: reporter loading enabled")
+
+	relations := data.NewSimpleRelationsRepository()
+	tester.inv.Relations = relations
+	repo := tester.inv.ResourceRepository
+
+	const keyJSON = `"reporter_resource_key":{"local_resource_id":"gap-delete-resource","resource_type":"integration","reporter":{"reporter_type":"notifications","reporter_instance_id":"notif-instance-1"}}`
+
+	process := func(operation model.EventOperationType, payload string) {
+		t.Helper()
+		_, err := tester.inv.ProcessMessage(map[string]string{"operation": string(operation.OperationType())}, true, &kafka.Message{Value: []byte(payload)})
+		require.NoError(t, err)
 	}
 
-	t.Run("delete after common-only update finds last-live reporter tuples", func(t *testing.T) {
-		tester := TestCase{}
-		errs := tester.TestSetup(t)
-		require.Nil(t, errs)
-
-		// Step 1: Create resource with reporter data (v0)
-		testData, err := model.NewResourceFixture("gap-delete-resource", "integration", "notifications", "notif-instance-1", "workspace-v0")
+	readAllTuples := func() []model.ReadTuplesItem {
+		t.Helper()
+		stream, err := relations.ReadTuples(context.Background(), model.TupleFilter{}, nil, model.NewConsistencyMinimizeLatency())
 		require.NoError(t, err)
-		err = tester.inv.ResourceRepository.Save(tester.inv.DB, *testData.Resource, model.OperationTypeCreated, testData.InitialTransactionId)
-		require.NoError(t, err)
-
-		// Step 2: Common-only update (reporter version increments to v1 but no row written)
-		found, err := tester.inv.ResourceRepository.FindResourceByKeys(tester.inv.DB, testData.Key)
-		require.NoError(t, err)
-
-		updatedCommon := model.Representation(map[string]interface{}{"workspace_id": "workspace-updated"})
-		api, err := model.NewApiHref("https://api.example.com/gap-update")
-		require.NoError(t, err)
-		err = found.Update(testData.Key, api, nil, nil, nil, &updatedCommon, model.TransactionId("tx-gap-update"))
-		require.NoError(t, err)
-		err = tester.inv.ResourceRepository.Save(tester.inv.DB, *found, model.OperationTypeUpdated, model.TransactionId("tx-gap-update"))
-		require.NoError(t, err)
-
-		// Step 3: Delete (tombstone at v2)
-		found, err = tester.inv.ResourceRepository.FindResourceByKeys(tester.inv.DB, testData.Key)
-		require.NoError(t, err)
-		err = found.Delete(testData.Key)
-		require.NoError(t, err)
-		err = tester.inv.ResourceRepository.Save(tester.inv.DB, *found, model.OperationTypeDeleted, model.TransactionId("tx-gap-delete"))
-		require.NoError(t, err)
-
-		// Now process the delete message
-		// The message contains tombstone version=2, but the last live reporter data is at v0 (gap at v1)
-		deleteMsg := `{"schema":{"type":"string"},"payload":{"reporter_resource_key":{"local_resource_id":"gap-delete-resource","resource_type":"integration","reporter":{"reporter_type":"notifications","reporter_instance_id":"notif-instance-1"}},"common_version":1,"reporter_representation_version":2}}`
-
-		msg := &kafka.Message{
-			Key:   []byte(`{"schema":{"type":"string","optional":false},"payload":"00000000-0000-0000-0000-000000000000"}`),
-			Value: []byte(deleteMsg),
-			Headers: []kafka.Header{
-				{Key: "operation", Value: []byte(string(model.OperationTypeDeleted))},
-				{Key: "txid", Value: []byte("test-delete-txid")},
-			},
+		var items []model.ReadTuplesItem
+		for {
+			item, err := stream.Recv()
+			if errors.Is(err, io.EOF) {
+				return items
+			}
+			require.NoError(t, err)
+			items = append(items, item)
 		}
+	}
 
-		parsedHeaders, err := ParseHeaders(msg)
-		require.NoError(t, err)
+	// Step 1: create the resource with reporter data at v0 and common workspace data.
+	testData, err := model.NewResourceFixture("gap-delete-resource", "integration", "notifications", "notif-instance-1", "workspace-v0")
+	require.NoError(t, err)
+	require.NoError(t, repo.Save(tester.inv.DB, *testData.Resource, model.OperationTypeCreated, testData.InitialTransactionId))
+	process(model.OperationTypeCreated, `{"payload":{`+keyJSON+`,"common_version":0,"reporter_representation_version":0,"reporter_generation":0}}`)
+	require.NotEmpty(t, readAllTuples(), "create must replicate tuples, otherwise the delete assertion is vacuous")
 
-		// Process the delete message
-		_, err = tester.inv.ProcessMessage(parsedHeaders, true, msg)
-		require.NoError(t, err, "delete processing should succeed despite version gap")
+	// Step 2: common-only update. Common advances to v1 while the reporter stream
+	// does not advance, so no reporter row is written for the version it bumps to.
+	found, err := repo.FindResourceByKeys(tester.inv.DB, testData.Key)
+	require.NoError(t, err)
+	updatedCommon := model.Representation(map[string]interface{}{"workspace_id": "workspace-updated"})
+	api, err := model.NewApiHref("https://api.example.com/gap-update")
+	require.NoError(t, err)
+	require.NoError(t, found.Update(testData.Key, api, nil, nil, nil, &updatedCommon, model.TransactionId("tx-gap-update")))
+	require.NoError(t, repo.Save(tester.inv.DB, *found, model.OperationTypeUpdated, model.TransactionId("tx-gap-update")))
+	process(model.OperationTypeUpdated, `{"payload":{`+keyJSON+`,"common_version":1}}`)
+	require.NotEmpty(t, readAllTuples(), "common-only update must keep tuples present")
 
-		// Verify that processing succeeded without error, which implies the fetch worked
-		t.Logf("Delete processing succeeded with version gap (v0 → gap at v1 → tombstone at v2)")
-	})
+	// Step 3: delete, producing a tombstone at reporter v2 while the last live
+	// reporter row is still v0 (the gap is at v1).
+	found, err = repo.FindResourceByKeys(tester.inv.DB, testData.Key)
+	require.NoError(t, err)
+	require.NoError(t, found.Delete(testData.Key))
+	require.NoError(t, repo.Save(tester.inv.DB, *found, model.OperationTypeDeleted, model.TransactionId("tx-gap-delete")))
+
+	process(model.OperationTypeDeleted, `{"payload":{`+keyJSON+`,"common_version":1,"reporter_representation_version":2,"reporter_generation":0}}`)
+
+	require.Empty(t, readAllTuples(), "delete must remove the tuples derived from the last live representation")
 }
 
 // TestConsumerCommonOnlyCompatibility exercises the default configuration against both repositories.

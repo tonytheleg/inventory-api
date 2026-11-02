@@ -38,6 +38,14 @@ func (rv RepresentationVersions) ReporterGeneration() *Generation {
 	return rv.reporterGeneration
 }
 
+// HasReporterCoordinates reports whether the reporter stream is fully identified.
+// Events produced before reporter generations existed carry a reporter version but
+// no generation; those must be handled through the common-only path, because a
+// missing generation cannot be interpreted as generation zero.
+func (rv RepresentationVersions) HasReporterCoordinates() bool {
+	return rv.reporterVersion != nil && rv.reporterGeneration != nil
+}
+
 // NewRepresentationVersionsFromTupleEvent constructs RepresentationVersions from a TupleEvent.
 // This is a convenience constructor for the consumer layer.
 func NewRepresentationVersionsFromTupleEvent(tupleEvent TupleEvent) RepresentationVersions {

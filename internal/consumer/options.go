@@ -25,7 +25,7 @@ type Options struct {
 	RetryOptions               *retry.Options `mapstructure:"retry-options"`
 	AuthOptions                *auth.Options  `mapstructure:"auth"`
 	ReadAfterWriteEnabled      bool           `mapstructure:"read-after-write-enabled"`
-	LoadReporterRepresentation bool           `mapstructure:"load_reporter_representation"`
+	LoadReporterRepresentation bool           `mapstructure:"load-reporter-representation"`
 	ReadAfterWriteAllowlist    []string       `mapstructure:"read-after-write-allowlist"`
 }
 
@@ -59,7 +59,7 @@ func (o *Options) AddFlags(fs *pflag.FlagSet, prefix string) {
 	fs.StringVar(&o.Topic, prefix+"topic", o.Topic, "Kafka topic to monitor for events")
 	fs.IntVar(&o.CommitModulo, prefix+"commit-modulo", o.CommitModulo, "defines the modulo used to calculate when to commit offsets (default: 10")
 	fs.BoolVar(&o.ReadAfterWriteEnabled, prefix+"read-after-write-enabled", o.ReadAfterWriteEnabled, "Toggle for enabling or disabling the read after write consistency workflow (default: true)")
-	fs.BoolVar(&o.LoadReporterRepresentation, prefix+"load_reporter_representation", o.LoadReporterRepresentation, "Load reporter representations while processing tuple events (default: false)")
+	fs.BoolVar(&o.LoadReporterRepresentation, prefix+"load-reporter-representation", o.LoadReporterRepresentation, "Load reporter representations while processing tuple events (default: false)")
 	fs.StringArrayVar(&o.ReadAfterWriteAllowlist, prefix+"read-after-write-allowlist", o.ReadAfterWriteAllowlist, "List of services that require all requests to be read-after-write enabled (default: [])")
 	fs.StringVar(&o.SessionTimeout, prefix+"session-timeout", o.SessionTimeout, "time a consumer can live without sending heartbeat (default: 45000ms)")
 	fs.StringVar(&o.HeartbeatInterval, prefix+"heartbeat-interval", o.HeartbeatInterval, "interval between heartbeats sent to Kafka (default: 3000ms, must be lower then session-timeout)")

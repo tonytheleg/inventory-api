@@ -36,6 +36,13 @@ func fetchCurrentAndPreviousRepresentations(
 		return nil, nil, fmt.Errorf("at least one version must be provided")
 	}
 
+	// A reporter version is only meaningful together with its generation. Legacy
+	// events omit the generation and must be routed through the common-only path;
+	// defaulting it to zero here would silently read the wrong reporter history.
+	if currentReporterVersion != nil && currentReporterGeneration == nil {
+		return nil, nil, fmt.Errorf("reporter version %d provided without reporter generation", currentReporterVersion.Uint())
+	}
+
 	// Determine which streams advanced and fetch current/previous for each
 	var currentCommon, previousCommon bizmodel.Representation
 	var currentCommonVer, previousCommonVer *bizmodel.Version
@@ -69,10 +76,7 @@ func fetchCurrentAndPreviousRepresentations(
 		// so nothing is found - no special-casing needed.
 		if currentReporterVersion != nil {
 			rv := currentReporterVersion.Uint()
-			rg := uint(0)
-			if currentReporterGeneration != nil {
-				rg = currentReporterGeneration.Uint()
-			}
+			rg := currentReporterGeneration.Uint()
 			// Fetch last-live reporter before the tombstone (gap-tolerant, tombstone-filtered)
 			currentReporter, currentReporterVer, err = fetcher.fetchLastLiveReporterBefore(rv, rg)
 			if err != nil {
@@ -104,10 +108,7 @@ func fetchCurrentAndPreviousRepresentations(
 		// Fetch reporter stream - only if version is provided (stream advanced)
 		if currentReporterVersion != nil {
 			rv := currentReporterVersion.Uint()
-			rg := uint(0)
-			if currentReporterGeneration != nil {
-				rg = currentReporterGeneration.Uint()
-			}
+			rg := currentReporterGeneration.Uint()
 			currentReporter, currentReporterVer, err = fetcher.fetchReporter(rv, rg)
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed to fetch current reporter representation: %w", err)

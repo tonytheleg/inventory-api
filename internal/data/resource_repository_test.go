@@ -2345,7 +2345,8 @@ func TestFindCurrentAndPreviousVersionedRepresentations_NoCommonInconsistency(t 
 
 		// For reporter-only resource: common version is nil, reporter version is 0
 		reporterVersion := ptrVersion(0)
-		cur, prev, err := repo.FindCurrentAndPreviousVersionedRepresentations(db, key, bizmodel.NewRepresentationVersions(nil, reporterVersion, nil), bizmodel.OperationTypeCreated)
+		reporterGeneration := ptrGeneration(0)
+		cur, prev, err := repo.FindCurrentAndPreviousVersionedRepresentations(db, key, bizmodel.NewRepresentationVersions(nil, reporterVersion, reporterGeneration), bizmodel.OperationTypeCreated)
 		require.NoError(t, err)
 		assert.Nil(t, prev, "no previous version on create")
 
@@ -2400,7 +2401,8 @@ func TestFindCurrentAndPreviousVersionedRepresentations_NoCommonInconsistency(t 
 
 		lastKnownCommonVersion := latest.CommonVersion()
 		reporterVersion := ptrVersion(1)
-		cur, prev, err := repo.FindCurrentAndPreviousVersionedRepresentations(db, key, bizmodel.NewRepresentationVersions(lastKnownCommonVersion, reporterVersion, nil), bizmodel.OperationTypeUpdated)
+		reporterGeneration := ptrGeneration(0)
+		cur, prev, err := repo.FindCurrentAndPreviousVersionedRepresentations(db, key, bizmodel.NewRepresentationVersions(lastKnownCommonVersion, reporterVersion, reporterGeneration), bizmodel.OperationTypeUpdated)
 		require.NoError(t, err)
 
 		// NEW BEHAVIOR (after fix): Both streams are now properly tracked.
@@ -2437,8 +2439,9 @@ func TestFindCurrentAndPreviousVersionedRepresentations_TwoStreamScenarios(t *te
 
 		// Reporter version is v0, common version is nil (no common data)
 		reporterVersion := ptrVersion(0)
+		reporterGeneration := ptrGeneration(0)
 		current, previous, err := repo.FindCurrentAndPreviousVersionedRepresentations(
-			db, key, bizmodel.NewRepresentationVersions(nil, reporterVersion, nil), bizmodel.OperationTypeCreated)
+			db, key, bizmodel.NewRepresentationVersions(nil, reporterVersion, reporterGeneration), bizmodel.OperationTypeCreated)
 
 		require.NoError(t, err)
 		require.NotNil(t, current, "current representation should exist")
@@ -2474,8 +2477,9 @@ func TestFindCurrentAndPreviousVersionedRepresentations_TwoStreamScenarios(t *te
 
 		// Fetch with reporter version v1, common version still nil
 		reporterVersion := ptrVersion(1)
+		reporterGeneration := ptrGeneration(0)
 		current, previous, err := repo.FindCurrentAndPreviousVersionedRepresentations(
-			db, key, bizmodel.NewRepresentationVersions(nil, reporterVersion, nil), bizmodel.OperationTypeUpdated)
+			db, key, bizmodel.NewRepresentationVersions(nil, reporterVersion, reporterGeneration), bizmodel.OperationTypeUpdated)
 
 		require.NoError(t, err)
 		require.NotNil(t, current, "current should exist")
@@ -2560,8 +2564,9 @@ func TestFindCurrentAndPreviousVersionedRepresentations_TwoStreamScenarios(t *te
 		// Both versions advanced
 		commonVersion := ptrVersion(1)
 		reporterVersion := ptrVersion(1)
+		reporterGeneration := ptrGeneration(0)
 		current, previous, err := repo.FindCurrentAndPreviousVersionedRepresentations(
-			db, key, bizmodel.NewRepresentationVersions(commonVersion, reporterVersion, nil), bizmodel.OperationTypeUpdated)
+			db, key, bizmodel.NewRepresentationVersions(commonVersion, reporterVersion, reporterGeneration), bizmodel.OperationTypeUpdated)
 
 		require.NoError(t, err)
 		require.NotNil(t, current)
