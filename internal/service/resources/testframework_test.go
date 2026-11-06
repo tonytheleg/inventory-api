@@ -71,7 +71,10 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
+	addctl "github.com/project-kessel/inventory-api/internal/biz/usecase/relationships"
 	usecase "github.com/project-kessel/inventory-api/internal/biz/usecase/resources"
+	"github.com/project-kessel/inventory-api/internal/data"
+	"github.com/project-kessel/inventory-api/internal/metricscollector"
 )
 
 // ---------------------------------------------------------------------------
@@ -80,8 +83,10 @@ import (
 
 // TestServerConfig holds configuration for creating isolated test servers.
 type TestServerConfig struct {
-	Usecase       *usecase.Usecase
-	Authenticator authnapi.Authenticator
+	Usecase                    *usecase.Usecase
+	AddRelationshipsUsecase    *addctl.AddResourceRelationshipsUseCase
+	RemoveRelationshipsUsecase *addctl.RemoveResourceRelationshipsUseCase
+	Authenticator              authnapi.Authenticator
 }
 
 // ---------------------------------------------------------------------------
@@ -224,6 +229,12 @@ var (
 	ReportResource GRPCCall = func(ctx context.Context, c pb.KesselInventoryServiceClient, req proto.Message) (proto.Message, error) {
 		return c.ReportResource(ctx, req.(*pb.ReportResourceRequest))
 	}
+	AddResourceRelationships GRPCCall = func(ctx context.Context, c pb.KesselInventoryServiceClient, req proto.Message) (proto.Message, error) {
+		return c.AddResourceRelationships(ctx, req.(*pb.AddResourceRelationshipsRequest))
+	}
+	RemoveResourceRelationships GRPCCall = func(ctx context.Context, c pb.KesselInventoryServiceClient, req proto.Message) (proto.Message, error) {
+		return c.RemoveResourceRelationships(ctx, req.(*pb.RemoveResourceRelationshipsRequest))
+	}
 	DeleteResource GRPCCall = func(ctx context.Context, c pb.KesselInventoryServiceClient, req proto.Message) (proto.Message, error) {
 		return c.DeleteResource(ctx, req.(*pb.DeleteResourceRequest))
 	}
@@ -359,6 +370,46 @@ func expectSuccess[Resp proto.Message](newResp func() Resp) Extraction[Resp] {
 	}
 }
 
+// resolveAddRelationshipsUsecase returns the configured add-relationships use
+// case, or a default built over fresh fakes for tests that do not exercise the
+// endpoint.
+func resolveAddRelationshipsUsecase(t *testing.T, cfg TestServerConfig) *addctl.AddResourceRelationshipsUseCase {
+	t.Helper()
+	if cfg.AddRelationshipsUsecase != nil {
+		return cfg.AddRelationshipsUsecase
+	}
+	return addctl.NewAddResourceRelationshipsUseCase(
+		data.NewFakeResourceRepository(),
+		newFakeSchemaRepository(t),
+		nil, // listen manager
+		nil, // circuit breaker
+		usecase.NewUsecaseConfig(),
+		metricscollector.NewFakeMetricsCollector(),
+		&PermissiveMetaAuthorizer{},
+		krlog.NewStdLogger(io.Discard),
+	)
+}
+
+// resolveRemoveRelationshipsUsecase returns the configured remove-relationships use
+// case, or a default built over fresh fakes for tests that do not exercise the
+// endpoint.
+func resolveRemoveRelationshipsUsecase(t *testing.T, cfg TestServerConfig) *addctl.RemoveResourceRelationshipsUseCase {
+	t.Helper()
+	if cfg.RemoveRelationshipsUsecase != nil {
+		return cfg.RemoveRelationshipsUsecase
+	}
+	return addctl.NewRemoveResourceRelationshipsUseCase(
+		data.NewFakeResourceRepository(),
+		newFakeSchemaRepository(t),
+		nil, // listen manager
+		nil, // circuit breaker
+		usecase.NewUsecaseConfig(),
+		metricscollector.NewFakeMetricsCollector(),
+		&PermissiveMetaAuthorizer{},
+		krlog.NewStdLogger(io.Discard),
+	)
+}
+
 // ---------------------------------------------------------------------------
 // Server construction (internal to this framework)
 // ---------------------------------------------------------------------------
@@ -386,7 +437,7 @@ func newTestGRPCServer(t *testing.T, cfg TestServerConfig) pb.KesselInventorySer
 	srv, err := servergrpc.NewWithDeps(deps)
 	require.NoError(t, err)
 
-	service := svc.NewKesselInventoryServiceV1beta2(cfg.Usecase)
+	service := svc.NewKesselInventoryServiceV1beta2(cfg.Usecase, resolveAddRelationshipsUsecase(t, cfg), resolveRemoveRelationshipsUsecase(t, cfg))
 	pb.RegisterKesselInventoryServiceServer(srv, service)
 
 	go func() { _ = srv.Start(context.Background()) }()
@@ -422,7 +473,7 @@ func newTestHTTPServer(t *testing.T, cfg TestServerConfig) string {
 	kratosSrv, err := serverhttp.NewWithDeps(deps)
 	require.NoError(t, err)
 
-	service := svc.NewKesselInventoryServiceV1beta2(cfg.Usecase)
+	service := svc.NewKesselInventoryServiceV1beta2(cfg.Usecase, resolveAddRelationshipsUsecase(t, cfg), resolveRemoveRelationshipsUsecase(t, cfg))
 	pb.RegisterKesselInventoryServiceHTTPServer(kratosSrv, service)
 
 	ts := httptest.NewServer(kratosSrv)
